@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\kolke\Documents\learning\GL_cpp\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\kolke\Documents\learning\GL_cpp\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kolke\Documents\OPENGL_CODE\GL_cpp\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kolke\Documents\OPENGL_CODE\GL_cpp\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\kolke\Documents\learning\GL_cpp\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\kolke\Documents\learning\GL_cpp\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kolke\Documents\OPENGL_CODE\GL_cpp\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kolke\Documents\OPENGL_CODE\GL_cpp\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
