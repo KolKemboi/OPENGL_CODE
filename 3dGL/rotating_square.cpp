@@ -3,35 +3,56 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "VBO.h"
+#include "VAO.h"
+#include "EBO.h"
+#include "shaderClass.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = vec4(aPos, 1.0);\n"
-"}\n\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"    FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
-
-
 GLfloat verts[] = {
-	0.5f,  0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-   -0.5f, -0.5f, 0.0f,
-   -0.5f, 0.5f, 0.0f,
+	// Front face
+	-0.5f, -0.5f,  0.5f,  // Vertex 0
+	 0.5f, -0.5f,  0.5f,  // Vertex 1
+	 0.5f,  0.5f,  0.5f,  // Vertex 2
+	-0.5f,  0.5f,  0.5f,  // Vertex 3
+
+	// Back face
+	-0.5f, -0.5f, -0.5f,  // Vertex 4
+	 0.5f, -0.5f, -0.5f,  // Vertex 5
+	 0.5f,  0.5f, -0.5f,  // Vertex 6
+	-0.5f,  0.5f, -0.5f,  // Vertex 7
 };
 
 GLuint indices[] = {
+	// Front face
 	0, 1, 2,
-	0, 2, 3,
+	2, 3, 0,
+
+	// Back face
+	4, 5, 6,
+	6, 7, 4,
+
+	// Left face
+	0, 3, 7,
+	7, 4, 0,
+
+	// Right face
+	1, 5, 6,
+	6, 2, 1,
+
+	// Top face
+	3, 2, 6,
+	6, 7, 3,
+
+	// Bottom face
+	0, 1, 5,
+	5, 4, 0,
 };
+
 
 int main() {
 	glfwInit();
@@ -51,52 +72,46 @@ int main() {
 
 	glViewport(0, 0, 800, 800);
 
-	GLuint VertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(VertShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(VertShader);
-
-	GLuint FragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(FragShader);
-
-	GLuint ShaderProg = glCreateProgram();
-	glAttachShader(ShaderProg, VertShader);
-	glAttachShader(ShaderProg, FragShader);
-	glLinkProgram(ShaderProg);
-
-	GLuint VAO, VBO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	shaderClass shader;
+	
+	VAO VAO1;
+	VAO1.Bind();
+	VBO VBO1(verts, sizeof(verts));
+	EBO EBO1(indices, sizeof(indices));
+	EBO1.Bind();
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 0, 0);
+	
+	VAO1.Unbind();
+	EBO1.Unbind();
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(ShaderProg);
-		glBindVertexArray(VAO);
+		shader.UseShader();
+		VAO1.Bind();
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));//moving the camera backwards
+		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);//FOV, aspect ratio, min clipping and max clipping
+
+		int modelLoc = glGetUniformLocation(shader.ShaderProg, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(shader.ShaderProg, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shader.ShaderProg, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteProgram(ShaderProg);
+	VAO1.Delete();
+	VBO1.Delete();
+	EBO1.Delete();
+	shader.DeleteShader();
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
