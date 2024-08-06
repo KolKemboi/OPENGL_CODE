@@ -9,22 +9,24 @@
 #include "VAO.h"
 #include "EBO.h"
 #include "shaderClass.h"
+#include "Camera.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
 
 GLfloat verts[] = {
 	// Front face
-	-0.5f, -0.5f,  0.5f,  // Vertex 0
-	 0.5f, -0.5f,  0.5f,  // Vertex 1
-	 0.5f,  0.5f,  0.5f,  // Vertex 2
-	-0.5f,  0.5f,  0.5f,  // Vertex 3
-
-	// Back face
-	-0.5f, -0.5f, -0.5f,  // Vertex 4
-	 0.5f, -0.5f, -0.5f,  // Vertex 5
-	 0.5f,  0.5f, -0.5f,  // Vertex 6
-	-0.5f,  0.5f, -0.5f,  // Vertex 7
+	//verts							//colors
+	-0.5f, -0.5f,  0.5f,		1.0f, 1.0f, 1.0f, // Vertex 0
+	 0.5f, -0.5f,  0.5f,		0.0f, 0.0f, 0.0f, // Vertex 1
+	 0.5f,  0.5f,  0.5f,		1.0f, 0.0f, 0.0f, // Vertex 2
+	-0.5f,  0.5f,  0.5f,		0.0f, 1.0f, 0.0f, // Vertex 3
+								
+	// Back face				
+	-0.5f, -0.5f, -0.5f,		0.0f, 0.0f, 1.0f,// Vertex 4
+	 0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 0.0f,// Vertex 5
+	 0.5f,  0.5f, -0.5f,		0.0f, 1.0f, 1.0f,// Vertex 6
+	-0.5f,  0.5f, -0.5f,		1.0f, 0.0f, 1.0f,// Vertex 7
 };
 
 GLuint indices[] = {
@@ -76,32 +78,32 @@ int main() {
 	
 	VAO VAO1;
 	VAO1.Bind();
+
 	VBO VBO1(verts, sizeof(verts));
 	EBO EBO1(indices, sizeof(indices));
+
 	EBO1.Bind();
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 0, 0);
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3* (sizeof(float))));
+
 	
 	VAO1.Unbind();
 	EBO1.Unbind();
+	//float rot_x = 0.0f;
+	//float rot_y = 0.0f;
+	//float rot_z = 0.0f;
+	//double prevTime = glfwGetTime();
+	glEnable(GL_DEPTH_TEST);
 
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.UseShader();
+
+		camera.Inputs(window);
+		camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
 		VAO1.Bind();
-
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));//moving the camera backwards
-		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);//FOV, aspect ratio, min clipping and max clipping
-
-		int modelLoc = glGetUniformLocation(shader.ShaderProg, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(shader.ShaderProg, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shader.ShaderProg, "proj");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
@@ -116,3 +118,27 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
+		/*double crntTime = glfwGetTime();
+		if (crntTime - prevTime >= 1/60) {
+			rot_x += 0.05f;
+			rot_y += 0.025f;
+			rot_z += -0.05f;
+			prevTime = crntTime;
+		}
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+		
+		model = glm::rotate(model, glm::radians(rot_x), glm::vec3(1.0f, 0.0f, 0.0f));//rotate on the X axis
+		model = glm::rotate(model, glm::radians(rot_y), glm::vec3(0.0f, 1.0f, 0.0f));//rotate on the Y axis
+		model = glm::rotate(model, glm::radians(rot_z), glm::vec3(0.0f, 0.0f, 1.0f));//rotate on the Z axis
+		view = glm::translate(view, glm::vec3(0.0f, -0.3f, -3.0f));//moving the camera backwards
+		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);//FOV, aspect ratio, min clipping and max clipping
+
+		int modelLoc = glGetUniformLocation(shader.ShaderProg, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(shader.ShaderProg, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shader.ShaderProg, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));*/

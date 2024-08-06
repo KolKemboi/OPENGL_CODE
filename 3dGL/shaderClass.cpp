@@ -4,18 +4,25 @@
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 color;\n"
 "uniform mat4 model;\n"
 "uniform mat4 view;\n"
 "uniform mat4 proj;\n"
-"{\n"
-"    gl_Position = proj * view * model * vec4(aPos, 1.0);\n"
-"}\n\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
+"uniform mat4 camMatrix;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
+"    gl_Position = camMatrix * vec4(aPos, 1.0f);\n"
+"    color = aColor;\n"
+"}\n\0";
+
+
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"in vec3 color;\n"
+"void main()\n"
+"{\n"
+"    FragColor = vec4(color, 1.0f);\n"
 "}\n\0";
 
 

@@ -17,7 +17,7 @@ const unsigned int height = 800;
 
 GLfloat verts[] =
 { //     COORDINATES     /        COLORS      /   TexCoord  //
-	-0.5f, 0.0f,  0.5f,     1.0f, 0.70f, 0.44f,	0.0f, 0.0f,
+	-0.5f, 0.0f,  0.5f,     1.0f, 0.70f, 0.44f,	    0.0f, 0.0f,
 	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
 	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
