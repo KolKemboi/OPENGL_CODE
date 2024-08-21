@@ -67,6 +67,7 @@ const unsigned int height = 800;
 int main() {
 	glfwInit();
 	WindowHints();
+
 	GLFWwindow* window = CreateWindow(width, height);
 	glfwMakeContextCurrent(window);
 	gladLoadGL(); 
