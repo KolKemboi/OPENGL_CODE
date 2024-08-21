@@ -105,8 +105,8 @@ int main() {
 		glfwPollEvents();
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glBindVertexArray(VAO);
-        VAO1.Bind();
+        /*glBindVertexArray(VAO);*/
+          VAO1.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);

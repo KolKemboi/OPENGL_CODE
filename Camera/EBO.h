@@ -6,7 +6,7 @@ class EBO
 public:
 	GLuint ElementBuffer;
 
-	EBO(GLuint* data, GLsizeiptr size);
+	EBO(GLuint* data, GLsizeiptr size);//Pass the pointer to the data
 
 	void Bind();
 	void Unbind();
