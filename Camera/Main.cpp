@@ -72,23 +72,6 @@ int main() {
 	gladLoadGL(); 
 	glViewport(0, 0, 800, 800);
 
-    //GLuint VAO, VBO, EBO;
-    //glGenVertexArrays(1, &VAO);
-    //glBindVertexArray(VAO);
-
-    //glGenBuffers(1, &VBO);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //glGenBuffers(1, &EBO);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*(sizeof(float)), (void*)0);
-    //glEnableVertexAttribArray(0);
-    //
-    //glBindVertexArray(0);
-    //glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     VAO VAO1;
     VAO1.Bind();
@@ -96,17 +79,20 @@ int main() {
     EBO EBO1(indices, sizeof(indices));
     EBO1.Bind();
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6*(sizeof(float)), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6*(sizeof(float)), (void*)(3*sizeof(float)));
     
     VAO1.Unbind();
     EBO1.Unbind();
-
+    
+    shaderClass Shader;
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         /*glBindVertexArray(VAO);*/
-          VAO1.Bind();
+        VAO1.Bind();
+        Shader.UseShader();
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
@@ -115,7 +101,7 @@ int main() {
     VBO1.Delete();
     EBO1.Delete();
     VAO1.Delete();
-    
+    Shader.DeleteShader();
     glfwDestroyWindow(window);
 	glfwTerminate();
 }
