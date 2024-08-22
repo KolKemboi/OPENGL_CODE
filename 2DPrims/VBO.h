@@ -7,8 +7,8 @@ class VBO {
 	public:
 		GLuint VertexBuffer;
 
-		VBO(GLfloat* verts);
-
+		VBO();
+		void LinkData(GLfloat* verts, GLsizei size);
 		void Bind();
 		void Unbind();
 		void Delete();

@@ -7,8 +7,9 @@ class EBO {
 public:
 	GLuint ElementBuffer;
 
-	EBO(GLuint* indices);
+	EBO();
 
+	void LinkData(GLuint* indices, GLsizei size);
 	void Bind();
 	void Unbind();
 	void Delete();
