@@ -71,14 +71,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\kolke\Documents\OPENGL_CODE\2DPrims\Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\include;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Users\kolke\Documents\OPENGL_CODE\2DPrims\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\kolke\Documents\OPENGL_CODE\2DPrims\Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\include;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Users\kolke\Documents\OPENGL_CODE\2DPrims\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

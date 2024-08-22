@@ -22,7 +22,7 @@ GLuint indices[] = {
 	0, 2, 3,
 };
 
-class Engine {
+class Engine{
 public:
 	Engine() {
 		glfwInit();
@@ -43,12 +43,12 @@ public:
 		glfwDestroyWindow(window);
 		std::cout << "It Has Run" << std::endl;
 	}
-	void Run(Shader& ShaderProgram, VAO& VAO1) {
+	void Run(Shader& ShaderProgram, VAO& VertexArray) {
 		while (!glfwWindowShouldClose(window)) {
 			glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 			ShaderProgram.Activate();
-			VAO1.Bind();
+			VertexArray.Bind();
 			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
@@ -63,7 +63,6 @@ private:
 };
 
 
-
 int main() {
 	
 	
@@ -71,24 +70,24 @@ int main() {
 	
 	Shader ShaderProgram("default.vert", "default.frag");
 	//Creating the VAO, VBO and EBO
-	VAO VAO1;
+	VAO VertexArray;
 
-	VBO VBO1;
-	EBO EBO1;
-	VBO1.LinkData(verts, sizeof(verts));
-	EBO1.LinkData(indices, sizeof(indices));
+	VBO VertexBuffer;
+	EBO ElementBuffer;
+	VertexBuffer.LinkData(verts, sizeof(verts));
+	ElementBuffer.LinkData(indices, sizeof(indices));
 	
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3*(sizeof(float)), (void*)0);
+	VertexArray.LinkAttrib(VertexBuffer, 0, 3, GL_FLOAT, 3*(sizeof(float)), (void*)0);
 
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	VertexArray.Unbind();
+	VertexBuffer.Unbind();
+	ElementBuffer.Unbind();
 
-	Render.Run(ShaderProgram, VAO1);
+	Render.Run(ShaderProgram, VertexArray);
 
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
+	VertexArray.Delete();
+	VertexBuffer.Delete();
+	ElementBuffer.Delete();
 	ShaderProgram.Delete();
 	glfwTerminate();
 	return 0;

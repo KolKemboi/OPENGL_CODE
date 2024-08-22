@@ -6,7 +6,6 @@
 #include "EBO.h"
 #include "VAO.h"
 #include "shaderClass.h"
-#include "main.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -79,7 +78,6 @@ int main() {
     VAO VAO1;
     VBO VBO1(vertices, sizeof(vertices));
     EBO EBO1(indices, sizeof(indices));
-    VAO1.Bind();
     EBO1.Bind();
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
     VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -96,6 +94,7 @@ int main() {
         VAO1.Bind();
         shader.useShaderProgram();
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_POINTS, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);//swaps the buffers
 		glfwPollEvents();//processes all pooled events
 	}
