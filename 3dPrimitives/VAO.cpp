@@ -2,8 +2,8 @@
 
 VAO::VAO()
 {
-	glGenVertexArrays(1, &VertexArray);
-	glBindVertexArray(VertexArray);
+	glGenVertexArrays(1, &this->VertexArray);
+	glBindVertexArray(this->VertexArray);
 
 }
 
@@ -17,7 +17,7 @@ void VAO::LinkAttrib(VBO& VBO1, GLuint Layout, GLint NumComponents, GLenum Type,
 
 void VAO::Bind()
 {
-	glBindVertexArray(VertexArray);
+	glBindVertexArray(this->VertexArray);
 }
 
 void VAO::Unbind()
@@ -27,5 +27,5 @@ void VAO::Unbind()
 
 void VAO::Delete()
 {
-	glDeleteVertexArrays(1, &VertexArray);
+	glDeleteVertexArrays(1, &this->VertexArray);
 }

@@ -21,15 +21,15 @@ const char* fragmentShaderSource= "#version 330 core\n"
 
 
 shaderClass::shaderClass() {
-	VertShader = glCreateShader(GL_VERTEX_SHADER);
+	this->VertShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(VertShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(VertShader);
 	
-	FragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	this->FragShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(FragShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(FragShader);
 
-	ShaderProg = glCreateProgram();
+	this->ShaderProg = glCreateProgram();
 	glAttachShader(ShaderProg, VertShader);
 	glAttachShader(ShaderProg, FragShader);
 	glLinkProgram(ShaderProg);
