@@ -121,6 +121,5 @@ void Engine::RunEngine() {
 
 int main() {
     Engine Prim3D;
-
     Prim3D.RunEngine();
 }

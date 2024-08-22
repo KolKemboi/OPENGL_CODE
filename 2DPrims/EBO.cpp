@@ -1,8 +1,8 @@
 #include "EBO.h"
 
 EBO::EBO() {
-	glGenBuffers(1, &ElementBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBuffer);
+	glGenBuffers(1, &this->ElementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ElementBuffer);
 
 }
 
@@ -12,7 +12,7 @@ void EBO::LinkData(GLuint* indices, GLsizei size){
 }
 
 void EBO::Bind() {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ElementBuffer);
 }
 
 void EBO::Unbind() {
@@ -20,5 +20,5 @@ void EBO::Unbind() {
 }
 
 void EBO::Delete() {
-	glDeleteBuffers(1, &ElementBuffer);
+	glDeleteBuffers(1, &this->ElementBuffer);
 }
