@@ -1,9 +1,14 @@
 #include "VBO.h"
 
-VBO::VBO(GLfloat* verts) {
+VBO::VBO() {
 	glGenBuffers(1, &VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+
+}
+
+void VBO::LinkData(GLfloat* verts, GLsizei size)
+{
+	glBufferData(GL_ARRAY_BUFFER, size, verts, GL_STATIC_DRAW);
 
 }
 
