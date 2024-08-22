@@ -3,6 +3,8 @@
 VAO::VAO()
 {
 	glGenVertexArrays(1, &VertexArray);
+	glBindVertexArray(VertexArray);
+
 }
 
 void VAO::LinkAttrib(VBO& VBO1, GLuint Layout, GLint NumComponents, GLenum Type, GLsizei Stride, void* Offset)
