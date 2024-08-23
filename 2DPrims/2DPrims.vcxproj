@@ -139,10 +139,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="ShaderClass.cpp" />
-    <ClCompile Include="Square.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VAO.h" />
     <ClCompile Include="VBO.cpp" />

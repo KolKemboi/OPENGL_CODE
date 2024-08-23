@@ -28,14 +28,17 @@ class Engine {
 public:
 	Engine() {
 		glfwInit();
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		CreateWindow();
+		
+		this->window = glfwCreateWindow(width, height, "SQUARE_PRIMITIVE", NULL, NULL);
 		if (window == NULL) {
 			std::cerr << "Error In Window Formation" << std::endl;
 			glfwTerminate();
 		}
+		
 		glfwMakeContextCurrent(window);
 		gladLoadGL();
 		glViewport(0, 0, 800, 800);
@@ -78,9 +81,7 @@ public:
 			glfwPollEvents();
 		}
 	}
-	void CreateWindow() {
-		window = glfwCreateWindow(width, height, "SQUARE_PRIMITIVE", NULL, NULL);
-	}
+
 
 private:
 	GLFWwindow* window;
