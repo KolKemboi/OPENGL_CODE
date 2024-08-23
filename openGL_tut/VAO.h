@@ -8,7 +8,7 @@ class VAO
 {
 public:
 	// ID reference for the Vertex Array Object
-	GLuint ID;
+	GLuint VertexArray;
 	// Constructor that generates a VAO ID
 	VAO();
 

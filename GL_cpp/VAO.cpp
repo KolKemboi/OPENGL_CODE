@@ -1,7 +1,7 @@
 #include "VAO.h"
 
 VAO::VAO() {
-	glGenVertexArrays(1, &VertexArray);
+	glGenVertexArrays(1, &this->VertexArray);
 }
 
 void VAO::LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
@@ -12,7 +12,7 @@ void VAO::LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type,
 }
 
 void VAO::Bind() {
-	glBindVertexArray(VertexArray);
+	glBindVertexArray(this->VertexArray);
 
 }
 
@@ -21,6 +21,6 @@ void VAO::Unbind() {
 }
 
 void VAO::Delete() {
-	glDeleteVertexArrays(1, &VertexArray);
+	glDeleteVertexArrays(1, &this->VertexArray);
 
 }
