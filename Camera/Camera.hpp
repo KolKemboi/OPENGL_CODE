@@ -134,8 +134,9 @@ private:
 		front.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch)) ;
 		
 		this->front = glm::normalize(front);
-		this->front = glm::normalize(glm::cross(this->front, this->worldUp));
+		this->right = glm::normalize(glm::cross(this->front, this->worldUp));
 		this->up = glm::normalize(glm::cross(this->right, this->front));
+
 	}
 
 };
