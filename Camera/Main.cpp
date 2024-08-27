@@ -50,15 +50,15 @@ GLFWwindow* CreateWindow(const unsigned int width, const unsigned int height) {
 GLfloat vertices[] = {
     // Front face
     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  // Vertex 0
-     0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  // Vertex 1
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  // Vertex 2
-    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  // Vertex 3
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  // Vertex 1
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  // Vertex 2
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  // Vertex 3
 
     // Back face
-    -0.5f, -0.5f, -0.5f,  0.5f, 0.1f, 0.5f,// Vertex 4
-     0.5f, -0.5f, -0.5f,  0.5f, 0.1f, 0.5f,// Vertex 5
-     0.5f,  0.5f, -0.5f,  0.5f, 0.1f, 0.5f,// Vertex 6
-    -0.5f,  0.5f, -0.5f,  0.5f, 0.1f, 0.5f,// Vertex 7
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,// Vertex 4
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,// Vertex 5
+     0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,// Vertex 6
+    -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.0f,// Vertex 7
 };
 
 GLuint indices[] = {
@@ -124,9 +124,13 @@ int main() {
     glm::vec3 cubePos[] =
     {
         glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 6.0f, -8.0f),
-        glm::vec3(0.0f, -2.0f, 9.0f),
-        glm::vec3(-10.0f, 2.0f, 9.0f),
+        glm::vec3(2.0f, 2.0f, -4.0f),
+        glm::vec3(2.0f, -2.0f, -4.0f),
+        glm::vec3(0.0f, -2.0f, 3.0f),
+        glm::vec3(-1.0f, 2.0f, 2.0f),
+        glm::vec3(1.0f, 2.0f, 2.0f),
+        glm::vec3(0.0f, -4.0f, 2.0f),
+        glm::vec3(0.0f, 0.0f, -4.0f),
     };
 
 	while (!glfwWindowShouldClose(window)) 
@@ -141,15 +145,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Shader.UseShader();
         
-        glm::mat4 proj = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 1000.0f);
+        glm::mat4 proj = glm::perspective(camera.GetZoom(), (GLfloat)width / (GLfloat)height, 0.1f, 1000.0f);
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view;
-
-        /*glm::vec3 Position = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
-        glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);*/
-        model = glm::rotate(model, 45.0f, glm::vec3(0.0f, 1.0f, 0.0f)); //rotating the 3d model about the y axis-vertical axis
-
         view = camera.GetViewMat();
 
         GLint modelLoc = glGetUniformLocation(Shader.ShaderProg, "model");
@@ -161,19 +159,19 @@ int main() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         VAO1.Bind();
 
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
-        /*
-        for (GLuint i = 0; i < 4; i++)
+        
+        for (GLuint i = 0; i < sizeof(cubePos)/sizeof(glm::vec3); i++)
         {
-            glm::mat4 model;
+            glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePos[i]);
             GLfloat angle = 20.0f * i;
             model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
+            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
-        }*/
+        }
 		glfwSwapBuffers(window);
 	}
 
