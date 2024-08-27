@@ -1,8 +1,8 @@
 #include "VBO.h"
 
 VBO::VBO() {
-	glGenBuffers(1, &VertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glGenBuffers(1, &this->VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, this->VertexBuffer);
 
 }
 
@@ -13,7 +13,7 @@ void VBO::LinkData(GLfloat* verts, GLsizei size)
 }
 
 void VBO::Bind() {
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, this->VertexBuffer);
 }
 
 void VBO::Unbind() {
@@ -21,5 +21,5 @@ void VBO::Unbind() {
 }
 
 void VBO::Delete() {
-	glDeleteBuffers(1, &VertexBuffer);
+	glDeleteBuffers(1, &this->VertexBuffer);
 }

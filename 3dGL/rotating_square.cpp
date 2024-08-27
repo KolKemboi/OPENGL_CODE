@@ -118,27 +118,3 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-		/*double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1/60) {
-			rot_x += 0.05f;
-			rot_y += 0.025f;
-			rot_z += -0.05f;
-			prevTime = crntTime;
-		}
-
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
-		
-		model = glm::rotate(model, glm::radians(rot_x), glm::vec3(1.0f, 0.0f, 0.0f));//rotate on the X axis
-		model = glm::rotate(model, glm::radians(rot_y), glm::vec3(0.0f, 1.0f, 0.0f));//rotate on the Y axis
-		model = glm::rotate(model, glm::radians(rot_z), glm::vec3(0.0f, 0.0f, 1.0f));//rotate on the Z axis
-		view = glm::translate(view, glm::vec3(0.0f, -0.3f, -3.0f));//moving the camera backwards
-		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);//FOV, aspect ratio, min clipping and max clipping
-
-		int modelLoc = glGetUniformLocation(shader.ShaderProg, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(shader.ShaderProg, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shader.ShaderProg, "proj");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));*/
