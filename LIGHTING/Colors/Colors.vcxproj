@@ -141,9 +141,12 @@
     <ClCompile Include="glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Shader.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="color.frag" />
+    <None Include="color.vert" />
     <None Include="default.frag" />
     <None Include="default.vert" />
   </ItemGroup>

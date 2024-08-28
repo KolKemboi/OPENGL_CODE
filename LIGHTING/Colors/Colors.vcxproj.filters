@@ -29,12 +29,21 @@
     <ClInclude Include="Shader.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
     <None Include="default.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="color.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="color.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>

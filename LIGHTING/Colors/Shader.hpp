@@ -23,11 +23,11 @@ private:
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
-	const char* vertSource;
-	const char* fragSource;
+	std::string vertSourceStr = get_file_cont(vertexFile);
+	std::string fragSourceStr = get_file_cont(fragmentFile);
 
-	vertSource = get_file_cont(vertexFile).c_str();
-	fragSource = get_file_cont(fragmentFile).c_str();
+	const char* vertSource = vertSourceStr.c_str();
+	const char* fragSource = fragSourceStr.c_str();
 
 	this->VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(this->VertexShader, 1, &vertSource, nullptr);
