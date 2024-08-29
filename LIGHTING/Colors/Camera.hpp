@@ -16,6 +16,7 @@ float SENSITIVITY = 100.0f;
 class Camera
 {
 public:
+	glm::vec3 pos;
 	Camera() ;
 	~Camera();
 	void LookAround(GLFWwindow* window);
@@ -25,7 +26,6 @@ private:
 	glm::mat4 proj;
 	glm::vec3 up;
 	glm::vec3 front;
-	glm::vec3 pos;
 	GLint viewLoc, projLoc;
 	float sensitivity;
 	float speed;
@@ -86,7 +86,7 @@ void Camera::LookAround(GLFWwindow* window)
 void Camera::setCamera(Shader& shaderProg)
 {
 	//TO-DO:: set the width and height dynamically
-	proj = glm::perspective(45.0f, (GLfloat)800 / (GLfloat)800, .01f, 100.0f);
+	proj = glm::perspective(45.0f, (GLfloat)800 / (GLfloat)800, 0.1f, 100.0f);
 	view = glm::lookAt(pos, pos + front, up);
 	this->viewLoc = glGetUniformLocation(shaderProg.ShaderProgram, "view");
 	this->projLoc = glGetUniformLocation(shaderProg.ShaderProgram, "proj");

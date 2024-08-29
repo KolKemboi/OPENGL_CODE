@@ -1,3 +1,8 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -8,24 +13,27 @@
 
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "VAO.hpp"
+#include "VBO.hpp"
+#include "EBO.hpp"
 
 const unsigned int width = 800, height = 800;
 
-GLfloat vertices[] = {
+GLfloat lightVertices[] = {
     // Front face
-    -0.5f, -0.5f,  0.5f, 0.5f, 0.5f, 0.5f,  // Vertex 0
-     0.5f, -0.5f,  0.5f, 0.5f, 0.5f, 0.5f,  // Vertex 1
-     0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f,  // Vertex 2
-    -0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f,  // Vertex 3
+    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 0
+     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 1
+     0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 2
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 3
 
     // Back face
-    -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f,// Vertex 4
-     0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f,// Vertex 5
-     0.5f,  0.5f, -0.5f, 0.5f, 0.5f, 0.5f,// Vertex 6
-   - 0.5f,  0.5f, -0.5f, 0.5f, 0.5f, 0.5f,// Vertex 7
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 4
+     0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 5
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 6
+    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 7
 };
 
-GLuint indices[] = {
+GLuint lightIndices[] = {
     // Front face
     0, 1, 2,
     2, 3, 0,
@@ -51,114 +59,202 @@ GLuint indices[] = {
     5, 4, 0,
 };
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+GLfloat objVerts[] =
+{ //     COORDINATES     /        COLORS        /       NORMALS       //
+    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,     0.0f, -1.0f, 0.0f, // Bottom side
+    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,     0.0f, -1.0f, 0.0f, // Bottom side
+     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,     0.0f, -1.0f, 0.0f, // Bottom side
+     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,     0.0f, -1.0f, 0.0f, // Bottom side
+
+    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,    -0.8f, 0.5f,  0.0f, // Left Side
+    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,    -0.8f, 0.5f,  0.0f, // Left Side
+     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,    -0.8f, 0.5f,  0.0f, // Left Side
+
+    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,     0.0f, 0.5f, -0.8f, // Non-facing side
+     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,     0.0f, 0.5f, -0.8f, // Non-facing side
+     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,     0.0f, 0.5f, -0.8f, // Non-facing side
+
+     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,     0.8f, 0.5f,  0.0f, // Right side
+     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,     0.8f, 0.5f,  0.0f, // Right side
+     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,     0.8f, 0.5f,  0.0f, // Right side
+
+     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,     0.0f, 0.5f,  0.8f, // Facing side
+    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,      0.0f, 0.5f,  0.8f, // Facing side
+     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,     0.0f, 0.5f,  0.8f  // Facing side
+};
+
+
+GLuint objIndices[] ={
+    0, 1, 2, // Bottom side
+    0, 2, 3, // Bottom side
+    4, 6, 5, // Left side
+    7, 9, 8, // Non-facing side
+    10, 12, 11, // Right side
+    13, 15, 14 // Facing side
+};
+
 
 int main()
 {
-	glfwInit();
+    glfwInit();
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "Colors", nullptr, nullptr);
-	if (window == NULL)
-	{
-		std::cerr << "Failed" << std::endl;
-		glfwTerminate();
-	}
-	glfwMakeContextCurrent(window);
-	gladLoadGL();
-	glViewport(0, 0, 800, 800);
-	glEnable(GL_DEPTH_TEST);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Colors", nullptr, nullptr);
+    if (window == NULL)
+    {
+        std::cerr << "Failed" << std::endl;
+        glfwTerminate();
+    }
+    glfwMakeContextCurrent(window);
+    gladLoadGL();
+    glViewport(0, 0, 800, 800);
+    glEnable(GL_DEPTH_TEST);
 
 
-    GLuint boxVAO, boxVBO, boxEBO;
+    VertexArray objVAO;
+    VertexBuffer objVBO;
+    ElementBuffer objEBO;
 
-    glGenVertexArrays(1, &boxVAO);
-    glBindVertexArray(boxVAO);
+    objVBO.BindVertexBuffer();
+    objEBO.BindElementBuffer();
 
-    glGenBuffers(1, &boxVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, boxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    objVBO.LinkData(objVerts, sizeof(objVerts));
+    objEBO.LinkData(objIndices, sizeof(objIndices));
 
-    glGenBuffers(1, &boxEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, boxEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    objVAO.LinkAttribArray(objVBO, 0, 3, GL_FLOAT, 9 * sizeof(float), (void*)0);
+    objVAO.LinkAttribArray(objVBO, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3*sizeof(float)));
+    objVAO.LinkAttribArray(objVBO, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    objVAO.UnbindVertexArray();
+    objEBO.UnbindElementBuffer();
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    VertexArray lightVAO;
+    VertexBuffer lightVBO;
+    ElementBuffer lightEBO;
 
-    GLuint lightVAO;
+    lightVBO.BindVertexBuffer();
+    lightEBO.BindElementBuffer();
 
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    lightVBO.LinkData(lightVertices, sizeof(lightVertices));
+    lightEBO.LinkData(lightIndices, sizeof(lightIndices));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    lightVAO.LinkAttribArray(lightVBO, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    lightVAO.LinkAttribArray(lightVBO, 2, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3*sizeof(float)));
 
-    glBindVertexArray(0);
-
+    lightVAO.UnbindVertexArray();
+    lightEBO.UnbindElementBuffer();
 
     Shader boxShader("default.vert", "default.frag");
+
     Shader lightShader("color.vert", "color.frag");
+
     Camera camera;
+    float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	while (!(glfwWindowShouldClose(window)))
-	{ 
-		glfwPollEvents();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glm::vec3 lightPos = glm::vec3(1.0f, 1.0f, 0.5f);
 
+
+    //ImGui setUp
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    float rot = 0.0f;
+    double prevTime = glfwGetTime();
+
+    while (!(glfwWindowShouldClose(window)))
+    {
+        glm::vec4 lightColor = glm::vec4(color[0], color[1], color[2], color[3]);
+
+        glfwPollEvents();
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //camera.LookAround(window);
+
+
+        //Imgui Frame Setup
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+     
+        //Rotation
+        double crntTime = glfwGetTime();
+        if (crntTime - prevTime >= 1 / 60)
+        {
+            rot += 0.05f;
+            prevTime = crntTime;
+        }
+
+        //light model rendering
         lightShader.UseShader();
 
-        glm::mat4 lightmodel = glm::mat4(1.0f);
-        lightmodel = glm::translate(lightmodel, lightPos);
-        lightmodel = glm::scale(lightmodel, glm::vec3(0.2f));
+        glm::mat4 lightModel = glm::mat4(1.0f);
+
+        lightModel = glm::translate(lightModel, lightPos);
+        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
         GLint lightmodelLoc = glGetUniformLocation(lightShader.ShaderProgram, "model");
-        glUniformMatrix4fv(lightmodelLoc, 1, GL_FALSE, glm::value_ptr(lightmodel));
+        glUniformMatrix4fv(lightmodelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+
+
+        //glUniformMatrix4fv(lightmodelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+
+        glUniform4f(glGetUniformLocation(lightShader.ShaderProgram, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+        camera.setCamera(lightShader);
+
+
+        lightVAO.BindVertexArray();
+        glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+        lightVAO.UnbindVertexArray();
+
+          
+         boxShader.UseShader();
+
+         //setting values for the uniforms
+         glUniform4f(glGetUniformLocation(boxShader.ShaderProgram, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "camPos"), camera.pos.x, camera.pos.y, camera.pos.z);
+
+
+         //model transforms
+         glm::mat4 objmodel = glm::mat4(1.0f);
+         objmodel = glm::rotate(objmodel, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0f));
+         GLint modelLoc = glGetUniformLocation(boxShader.ShaderProgram, "model");
+         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(objmodel));
+
+         //camera funcs
+         camera.setCamera(boxShader);
 
 
 
-        glBindVertexArray(lightVAO);
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(lightVAO);
-         
-        boxShader.UseShader();
 
-        GLint objectColorLoc = glGetUniformLocation(boxShader.ShaderProgram, "objColor");
-        GLint lightColorLoc = glGetUniformLocation(boxShader.ShaderProgram, "lightColor");
+        objVAO.BindVertexArray();
+        glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+        objVAO.UnbindVertexArray();
 
-        glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-        glUniform3f(lightColorLoc, 1.0f, 0.5f, 1.0f);
+        //Creating the color picker
+        ImGui::Begin("color Picker");
+        ImGui::ColorEdit4("Color", color);
+        ImGui::End();
 
-        //model transforms
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-        GLint modelLoc = glGetUniformLocation(boxShader.ShaderProgram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //camera funcs
-        camera.setCamera(boxShader);
-        camera.LookAround(window);
+        //Imgui rendering block
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        glfwSwapBuffers(window);
+    }
 
-        glBindVertexArray(boxVAO);
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(boxVAO);
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
-		glfwSwapBuffers(window);
-	}
-
-    glDeleteVertexArrays(1, &boxVAO);
-    glDeleteBuffers(1, &boxVBO);
-    glDeleteBuffers(1, &boxEBO);
-	glfwDestroyWindow(window);
-	glfwTerminate();
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
