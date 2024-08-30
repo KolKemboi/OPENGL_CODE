@@ -13,6 +13,7 @@
 #include "VertexBuffer.hpp"
 #include "ElementBuffer.hpp"
 #include "Shader.hpp"
+#include "Camera.hpp"
 
 const unsigned int width = 800, height = 800;
 
@@ -91,6 +92,8 @@ GLuint objIndices[] = {
     13, 15, 14 // Facing side
 };
 
+void setModelUniform(Shader& shader, glm::vec3 Pos, glm::vec3 RotAxis, float rotAngle, glm::vec3 scale);
+
 int main()
 {
     glfwInit();
@@ -117,6 +120,8 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
+    Camera camera;
+
     //Pyramid Info
     VertexArray objVAO;
     VertexBuffer objVBO(objVerts, sizeof(objVerts));
@@ -131,6 +136,11 @@ int main()
 
     Shader objShader("default.vert", "default.frag");
 
+    glm::vec3 objPos = glm::vec3(1.0f, 0.0f, 1.0f);
+    glm::vec3 objScale = glm::vec3(2.0f);
+    glm::vec3 objRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+    float objRotAngle = 3.0f;
+
     //Light Info
     VertexArray lightVAO;
     VertexBuffer lightVBO(lightVertices, sizeof(lightVertices));
@@ -141,7 +151,12 @@ int main()
     lightVAO.LinkAttribArray(lightVBO, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     lightVAO.UnbindVertArray();
     lightEBO.UnbindElemBuffer();
+    Shader lightShader("light.vert", "light.frag");
 
+    glm::vec3 lightPos = glm::vec3(0.5f, 2.0f, 0.0f);
+    glm::vec3 lightScale = glm::vec3(0.2f);
+    glm::vec3 lightRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+    float lightRotAngle = 0.0f;
 
     while (!(glfwWindowShouldClose(window)))
     {
@@ -155,12 +170,21 @@ int main()
 
         //obj Info
         objShader.UseShader();
+
+        setModelUniform(objShader, objPos, objRotAxis, objRotAngle, objScale);
+        camera.setCamVectors(objShader);
+
         objVAO.BindVertArray();
         glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
         objVAO.UnbindVertArray();
 
 
-        // Info
+        //light Info
+        lightShader.UseShader();
+
+        setModelUniform(lightShader, lightPos, lightRotAxis, lightRotAngle, lightScale);
+        camera.setCamVectors(lightShader);
+
         lightVAO.BindVertArray();
         glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
         lightVAO.UnbindVertArray();
@@ -177,4 +201,14 @@ int main()
 
     glfwDestroyWindow(window);
     glfwTerminate();
+}
+
+void setModelUniform(Shader& shader, glm::vec3 Pos, glm::vec3 RotAxis, float rotAngle, glm::vec3 scale)
+{
+    glm::mat4 Model = glm::mat4(1.0f);
+    Model = glm::rotate(Model, rotAngle, RotAxis);
+    Model = glm::translate(Model, Pos);
+    Model = glm::scale(Model, scale);
+    GLint modelLoc = glGetUniformLocation(shader.ShaderProgram, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 }

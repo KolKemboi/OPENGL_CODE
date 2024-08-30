@@ -14,7 +14,7 @@ out vec4 crntPos;
 
 void main()
 {
-	gl_Position = vec4(position , 1.0);
+	gl_Position = proj * view * model * vec4(position, 1.0);
 	vertColor = color;
 	vertNorm = normal;
 }
