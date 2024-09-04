@@ -103,7 +103,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(width, height, "Colors", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Materials", nullptr, nullptr);
     if (window == NULL)
     {
         std::cerr << "Failed" << std::endl;
@@ -167,6 +167,13 @@ int main()
 
     float rot = 0.0f;
     double prevTime = glfwGetTime();
+    float ambientLightValue = 0.5f;
+    float diffuseLightValue = 0.5f;
+
+    float matAmbient[] = { 1.0f, 1.0f, 1.0f };
+    float matDiffuse[] = { 1.0f, 1.0f, 1.0f };
+    float matSpecular[] = { 1.0f, 1.0f, 1.0f };
+    float shininess = 32.0f;
 
     while (!(glfwWindowShouldClose(window)))
     {
@@ -197,9 +204,7 @@ int main()
 
         //light model rendering
         lightShader.UseShader();
-
         glm::mat4 lightModel = glm::mat4(1.0f);
-
         lightModel = glm::translate(lightModel, lightPos);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
         GLint lightmodelLoc = glGetUniformLocation(lightShader.ShaderProgram, "model");
@@ -207,10 +212,8 @@ int main()
 
 
         //glUniformMatrix4fv(lightmodelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
-
         glUniform3f(glGetUniformLocation(lightShader.ShaderProgram, "lightColor"), lightColor.r, lightColor.g, lightColor.b);
         camera.setCamera(lightShader);
-
 
         lightVAO.BindVertexArray();
         glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
@@ -218,27 +221,27 @@ int main()
 
 
         boxShader.UseShader();
-
         //setting values for the uniforms
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "lightColor"), lightColor.r, lightColor.g, lightColor.b);
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "light.position"), lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "camPos"), camera.pos.x, camera.pos.y, camera.pos.z);
 
-        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+        //Material stuff
+        glm::vec3 diffuseColor = lightColor * glm::vec3(diffuseLightValue);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(ambientLightValue);
 
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "light.ambient"), ambientColor.r, ambientColor.g, ambientColor.b);
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "light.diffuse"), diffuseColor.r, diffuseColor.g, diffuseColor.b);
         glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "light.specular"), 1.0f, 1.0f, 1.0f);
-        
-        
-        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.ambient"), 1.0f, 0.5f, 0.31f);
-        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.diffuse"), 1.0f, 0.5f, 0.31f);
-        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.specular"), 0.5f, 0.5f, 0.5f);
-        glUniform1f(glGetUniformLocation(boxShader.ShaderProgram, "material.shininess"), 32.0f);
 
+        glm::vec3 MatAmbient = glm::vec3(matAmbient[0], matAmbient[1], matAmbient[2]);
+        glm::vec3 MatDiffuse = glm::vec3(matDiffuse[0], matDiffuse[1], matDiffuse[2]);
+        glm::vec3 MatSpecular = glm::vec3(matSpecular[0], matSpecular[1], matSpecular[2]);
 
-
+        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.ambient"), MatAmbient.r, MatAmbient.g, MatAmbient.b);
+        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.diffuse"), MatDiffuse.r, MatDiffuse.g, MatDiffuse.b);
+        glUniform3f(glGetUniformLocation(boxShader.ShaderProgram, "material.specular"), MatSpecular.r, MatSpecular.g, MatSpecular.b);
+        glUniform1f(glGetUniformLocation(boxShader.ShaderProgram, "material.shininess"), shininess);
 
         //model transforms
         glm::mat4 objmodel = glm::mat4(1.0f);
@@ -256,9 +259,26 @@ int main()
         glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
         objVAO.UnbindVertexArray();
 
-        //Creating the color picker
-        ImGui::Begin("color Picker");
-        ImGui::ColorEdit3("Color", color);
+        //Creating the material editor
+        ImGui::Begin("material editor");
+        ImGui::Text("Ambient Color");
+        ImGui::ColorPicker3("Ambient", matAmbient, ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::Text("Material Diffuse");
+        ImGui::ColorPicker3("Diffuse", matDiffuse, ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::Text("Material Specular");
+        ImGui::ColorPicker3("Specular", matSpecular, ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::Text("Shininess");
+        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f, "%.3f", 0);
+        ImGui::End();
+
+        //Creating the light editor
+        ImGui::Begin("light editor");
+        ImGui::Text("Light Color");
+        ImGui::ColorPicker3("Color", color, ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::Text("Ambient Value");
+        ImGui::SliderFloat("Ambient", &ambientLightValue, 0.0f, 1.0f, "%.3f", 0);
+        ImGui::Text("diffuse Value");
+        ImGui::SliderFloat("diffuse", &diffuseLightValue, 0.0f, 1.0f, "%.3f", 0);
         ImGui::End();
 
         //Imgui rendering block

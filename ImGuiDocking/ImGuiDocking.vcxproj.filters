@@ -77,5 +77,24 @@
     <ClInclude Include="imgui\imstb_rectpack.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="EBO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VAO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VBO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="default.frag" />
+    <None Include="default.vert" />
+    <None Include="imgui.ini" />
+    <None Include="framebuffer.frag" />
+    <None Include="framebuffer.vert" />
   </ItemGroup>
 </Project>
