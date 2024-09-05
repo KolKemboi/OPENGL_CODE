@@ -7,7 +7,7 @@ layout (location = 3) in vec3 norm;
 
 out vec3 Color;
 out vec3 Norm;
-out vec2 TextCoord;
+out vec2 TexCoord;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -15,8 +15,13 @@ uniform mat4 proj;
 
 void main()
 {
-	gl_Position = vec4(pos, 1.0);
-	Color = col;
-	TexCoord = tex;
-	Norm = norm;
+    // Apply transformations: model -> view -> projection
+    gl_Position = proj * view * model * vec4(pos, 1.0);
+    
+    // Pass the color, normal, and texture coordinates to the fragment shader
+    Color = col;
+    TexCoord = tex;
+    
+    // Transform the normal by the model matrix to bring it into world space
+    Norm = mat3(transpose(inverse(model))) * norm;
 }

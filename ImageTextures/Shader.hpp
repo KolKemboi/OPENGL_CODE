@@ -28,11 +28,11 @@ Shader::Shader(const char* vertfile, const char* fragfile)
 	const char* FragSource = fragtext.c_str();
 
 	this->VertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(this->VertShader, 1, &VertSource, nullptr);
+	glShaderSource(this->VertShader, 1, &VertSource, 0);
 	glCompileShader(this->VertShader);
 
 	this->FragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(this->FragShader, 1, &FragSource, nullptr);
+	glShaderSource(this->FragShader, 1, &FragSource, 0);
 	glCompileShader(this->FragShader);
 
 	this->ShaderProgram = glCreateProgram();
