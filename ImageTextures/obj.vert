@@ -15,13 +15,10 @@ uniform mat4 proj;
 
 void main()
 {
-    // Apply transformations: model -> view -> projection
     gl_Position = proj * view * model * vec4(pos, 1.0);
     
-    // Pass the color, normal, and texture coordinates to the fragment shader
     Color = col;
     TexCoord = tex;
     
-    // Transform the normal by the model matrix to bring it into world space
     Norm = mat3(transpose(inverse(model))) * norm;
 }

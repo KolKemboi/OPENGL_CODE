@@ -163,6 +163,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="Textures.hpp" />
     <ClInclude Include="VAO.hpp" />
     <ClInclude Include="VBO.hpp" />
   </ItemGroup>
@@ -171,6 +172,9 @@
     <None Include="light.vert" />
     <None Include="obj.frag" />
     <None Include="obj.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="pop_cat.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

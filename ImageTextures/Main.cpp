@@ -15,6 +15,7 @@
 #include "EBO.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "Textures.hpp"
 
 
 GLfloat lightVertices[] = {
@@ -71,9 +72,8 @@ GLuint objIndices[] = {
 	0, 2, 3
 };
 
-
 const unsigned int width = 800, height = 800;
-
+Camera camera(width, height);
 int main()
 {
 	glfwInit();
@@ -102,6 +102,7 @@ int main()
 	//ImGui_ImplGlfw_InitForOpenGL(window, true);
 	//ImGui_ImplOpenGL3_Init("version 330");
 
+	
 
 	//OBJ DATA
 	VertexArray objVAO;
@@ -120,6 +121,9 @@ int main()
 	
 	Shader objShader("obj.vert", "obj.frag");
 
+	Texture popCat("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	popCat.texUnit(objShader, "tex0", 0);
+
 	//LIGHT DATA
 	VertexArray lightVAO;
 	VertexBuffer lightVBO(lightVertices, sizeof(lightVertices));
@@ -133,13 +137,17 @@ int main()
 
 	Shader lightShader("light.vert", "light.frag");
 
-	Camera camera(width, height);
 
+	
+	
 	while (!(glfwWindowShouldClose(window)))
 	{
 		glfwPollEvents();
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		GLfloat currentFrame = glfwGetTime();
+		
 
 		//ImGui_ImplGlfw_NewFrame();
 		//ImGui_ImplOpenGL3_NewFrame();
@@ -153,7 +161,8 @@ int main()
 		objModel = glm::translate(objModel, glm::vec3(-0.5f, 0.0f, 1.0f));
 		objModel = glm::rotate(objModel, 10.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(objModelLoc, 1, GL_FALSE, glm::value_ptr(objModel));
-		
+		popCat.Bind();
+
 		objVAO.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		objVAO.Unbind();
