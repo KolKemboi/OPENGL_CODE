@@ -73,7 +73,44 @@ GLuint objIndices[] = {
 };
 
 const unsigned int width = 800, height = 800;
+
 Camera camera(width, height);
+
+float lastX = width / 2.0f;
+float lastY = height / 2.0f;
+bool keys[1024];
+bool firstMouse = true;
+float lastFrame = 0.0f;
+float deltaTime = 0.0f;
+
+void DoMovement()
+{
+	if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) camera.ProcessKeyboard(LEFT, deltaTime);
+	if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) camera.ProcessKeyboard(RIGHT, deltaTime);
+	if (keys[GLFW_KEY_SPACE]) camera.ProcessKeyboard(UP, deltaTime);
+	if (keys[GLFW_KEY_LEFT_SHIFT]) camera.ProcessKeyboard(DOWN, deltaTime);
+}
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)glfwSetWindowShouldClose(window, true);
+
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS) keys[key] = true;
+		else if (action == GLFW_RELEASE) keys[key] = false;
+		
+	}
+
+}
+
+
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	camera.ProcessMouseScroll(yOffset);
+}
 int main()
 {
 	glfwInit();
@@ -137,7 +174,9 @@ int main()
 
 	Shader lightShader("light.vert", "light.frag");
 
+	glfwSetKeyCallback(window, KeyCallback);
 
+	glfwSetScrollCallback(window, ScrollCallback);
 	
 	
 	while (!(glfwWindowShouldClose(window)))
@@ -147,7 +186,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GLfloat currentFrame = glfwGetTime();
-		
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		DoMovement();
 
 		//ImGui_ImplGlfw_NewFrame();
 		//ImGui_ImplOpenGL3_NewFrame();
@@ -156,6 +197,7 @@ int main()
 		////Obj
 		objShader.useShader();
 		camera.setCamera(objShader);
+		camera.LookAround(window);
 		int objModelLoc = glGetUniformLocation(objShader.ShaderProgram, "model");
 		glm::mat4 objModel = glm::mat4(1.0f);
 		objModel = glm::translate(objModel, glm::vec3(-0.5f, 0.0f, 1.0f));
