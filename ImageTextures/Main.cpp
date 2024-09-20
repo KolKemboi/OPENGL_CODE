@@ -1,237 +1,297 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <stb/stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <iostream>
 
-#include "VAO.hpp"
-#include "VBO.hpp"
-#include "EBO.hpp"
-#include "Shader.hpp"
-#include "Camera.hpp"
-#include "Textures.hpp"
+// Framebuffer settings
+GLuint framebuffer, textureColorbuffer, rbo;
+GLuint cubeVAO, cubeVBO;
+GLuint shaderProgram;
 
+// Vertex and Fragment shader source code
+const char* vertexShaderSource = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
 
-GLfloat lightVertices[] = {
-	// Front face
-	-0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 0
-	 0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 1
-	 0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 2
-	-0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,  // Vertex 3
+out vec3 ourColor;
 
-	// Back face
-	-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 4
-	 0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 5
-	 0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 6
-	-0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 7
-};
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
-GLuint lightIndices[] = {
-	// Front face
-	0, 1, 2,
-	2, 3, 0,
+void main() {
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    ourColor = aColor;
+}
+)";
 
-	// Back face
-	4, 5, 6,
-	6, 7, 4,
+const char* fragmentShaderSource = R"(
+#version 330 core
+in vec3 ourColor;
+out vec4 FragColor;
 
-	// Left face
-	0, 3, 7,
-	7, 4, 0,
+void main() {
+    FragColor = vec4(ourColor, 1.0);
+}
+)";
 
-	// Right face
-	1, 5, 6,
-	6, 2, 1,
+void compileShaders() {
+    // Vertex Shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
 
-	// Top face
-	3, 2, 6,
-	6, 7, 3,
+    // Check for compilation errors
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
-	// Bottom face
-	0, 1, 5,
-	5, 4, 0,
-};
+    // Fragment Shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
 
+    // Check for compilation errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
-GLfloat objVerts[] =
-{ //     COORDINATES     /        COLORS        /    TexCoord    /       NORMALS     //
-	-1.0f, 0.0f,  1.0f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
-	-1.0f, 0.0f, -1.0f,		1.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f, -1.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f,  1.0f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
-};
+    // Shader Program
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
 
-GLuint objIndices[] = {
-	0, 1, 2,
-	0, 2, 3
-};
+    // Check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
 
-const unsigned int width = 800, height = 800;
-
-Camera camera(width, height);
-
-float lastX = width / 2.0f;
-float lastY = height / 2.0f;
-bool keys[1024];
-bool firstMouse = true;
-float lastFrame = 0.0f;
-float deltaTime = 0.0f;
-
-void DoMovement()
-{
-	if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) camera.ProcessKeyboard(LEFT, deltaTime);
-	if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) camera.ProcessKeyboard(RIGHT, deltaTime);
-	if (keys[GLFW_KEY_SPACE]) camera.ProcessKeyboard(UP, deltaTime);
-	if (keys[GLFW_KEY_LEFT_SHIFT]) camera.ProcessKeyboard(DOWN, deltaTime);
+    // Cleanup
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 }
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)glfwSetWindowShouldClose(window, true);
+void setupFramebuffer(int width, int height) {
+    // Generate framebuffer
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-	if (key >= 0 && key < 1024)
-	{
-		if (action == GLFW_PRESS) keys[key] = true;
-		else if (action == GLFW_RELEASE) keys[key] = false;
-		
-	}
+    // Create a texture to hold the framebuffer's color attachment
+    glGenTextures(1, &textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
+    // Attach the texture to the framebuffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
+    // Create a renderbuffer object for depth and stencil attachment
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    // Check if the framebuffer is complete
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  // Unbind the framebuffer
 }
 
+void setupCube() {
+    float vertices[] = {
+        // Positions         // Colors
+        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Front Bottom Left
+         0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Front Bottom Right
+         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Front Top Right
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f,  // Front Top Left
 
-void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
-{
-	camera.ProcessMouseScroll(yOffset);
+        -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,  // Back Bottom Left
+         0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  // Back Bottom Right
+         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,  // Back Top Right
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f   // Back Top Left
+    };
+
+    unsigned int indices[] = {
+        // Front face
+        0, 1, 2,
+        2, 3, 0,
+
+        // Back face
+        4, 5, 6,
+        6, 7, 4,
+
+        // Left face
+        0, 3, 7,
+        7, 4, 0,
+
+        // Right face
+        1, 5, 6,
+        6, 2, 1,
+
+        // Bottom face
+        0, 1, 5,
+        5, 4, 0,
+
+        // Top face
+        3, 2, 6,
+        6, 7, 3
+    };
+
+    // Generate and bind the VAO and VBO
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+
+    glBindVertexArray(cubeVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    GLuint EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);  // Unbind VAO
 }
-int main()
-{
-	glfwInit();
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+void renderToFramebuffer() {
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "Image Textures", nullptr, nullptr);
+    // Use the shader program
+    glUseProgram(shaderProgram);
 
-	if (window == NULL)
-	{
-		std::cerr << "Failed" << std::endl;
-		glfwTerminate();
-	}
+    // Set transformation matrices
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-	glfwMakeContextCurrent(window);
-	gladLoadGL();
-	glViewport(0, 0, 800, 800);
-	glEnable(GL_DEPTH_TEST);
+    GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
+    GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
 
-	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGuiIO& io = ImGui::GetIO(); (void)io;
-	//ImGui::StyleColorsDark();
-	//ImGui_ImplGlfw_InitForOpenGL(window, true);
-	//ImGui_ImplOpenGL3_Init("version 330");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-	
+    // Render the cube
+    glBindVertexArray(cubeVAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
-	//OBJ DATA
-	VertexArray objVAO;
-	VertexBuffer objVBO(objVerts, sizeof(objVerts));
-	ElementBuffer objEBO(objIndices, sizeof(objIndices));
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  // Switch back to default framebuffer
+}
 
-	objEBO.Bind();
+void renderImGuiWindow() {
+    ImGui::Begin("Framebuffer Image");
 
-	objVAO.LinkAttrib(objVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	objVAO.LinkAttrib(objVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	objVAO.LinkAttrib(objVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	objVAO.LinkAttrib(objVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); 
-	
-	objVAO.Unbind();
-	objEBO.Unbind();
-	
-	Shader objShader("obj.vert", "obj.frag");
+    // Display the framebuffer texture in ImGui window
+    ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(512, 512));  // Set image size
 
-	Texture popCat("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	popCat.texUnit(objShader, "tex0", 0);
+    ImGui::End();
+}
 
-	//LIGHT DATA
-	VertexArray lightVAO;
-	VertexBuffer lightVBO(lightVertices, sizeof(lightVertices));
-	ElementBuffer lightEBO(lightIndices, sizeof(lightIndices));
+int main() {
+    // Initialize GLFW and OpenGL context
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
 
-	lightEBO.Bind();
-	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	lightVAO.LinkAttrib(lightVBO, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	lightVAO.Unbind();
-	lightEBO.Unbind();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	Shader lightShader("light.vert", "light.frag");
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Framebuffer to ImGui", NULL, NULL);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
-	glfwSetKeyCallback(window, KeyCallback);
+    glfwMakeContextCurrent(window);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
 
-	glfwSetScrollCallback(window, ScrollCallback);
-	
-	
-	while (!(glfwWindowShouldClose(window)))
-	{
-		glfwPollEvents();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Setup ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
-		GLfloat currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-		DoMovement();
+    // Set up the framebuffer and cube
+    setupFramebuffer(512, 512);
+    setupCube();
+    compileShaders();
 
-		//ImGui_ImplGlfw_NewFrame();
-		//ImGui_ImplOpenGL3_NewFrame();
-		//ImGui::NewFrame();
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
 
-		////Obj
-		objShader.useShader();
-		camera.setCamera(objShader);
-		camera.LookAround(window);
-		int objModelLoc = glGetUniformLocation(objShader.ShaderProgram, "model");
-		glm::mat4 objModel = glm::mat4(1.0f);
-		objModel = glm::translate(objModel, glm::vec3(-0.5f, 0.0f, 1.0f));
-		objModel = glm::rotate(objModel, 10.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(objModelLoc, 1, GL_FALSE, glm::value_ptr(objModel));
-		popCat.Bind();
+        // Start ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-		objVAO.Bind();
-		glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
-		objVAO.Unbind();
+        // Render to the framebuffer
+        renderToFramebuffer();
 
-		//Light
-		lightShader.useShader();
-		camera.setCamera(lightShader);
-		int lightModelLoc = glGetUniformLocation(lightShader.ShaderProgram, "model");
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::scale(lightModel, glm::vec3(0.5f));
-		lightModel = glm::translate(lightModel, glm::vec3(2.0f, 2.0f, -1.0f));
-		lightModel = glm::rotate(lightModel, 10.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
-		
-		lightVAO.Bind();
-		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
-		lightVAO.Unbind();
+        // Render ImGui window showing the framebuffer texture
+        renderImGuiWindow();
 
-		//ImGui::Render();
-		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(window);
-	}
+        // Render ImGui
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        // Swap buffers
+        glfwSwapBuffers(window);
+    }
 
-	//ImGui_ImplGlfw_Shutdown();
-	//ImGui_ImplOpenGL3_Shutdown();
-	//ImGui::DestroyContext();
-	glfwDestroyWindow(window);
-	glfwTerminate();
+    // Cleanup
+    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteBuffers(1, &cubeVBO);
+    glDeleteFramebuffers(1, &framebuffer);
+    glDeleteTextures(1, &textureColorbuffer);
+    glDeleteRenderbuffers(1, &rbo);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
 }
