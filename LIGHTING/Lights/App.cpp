@@ -79,6 +79,7 @@ int main()
 	gladLoadGL();
 	glViewport(0, 0, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -88,14 +89,14 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 
-	Models Suzane("suzane", "models/suzanne.obj", "model.vert", "model.frag");
+	Models Suzane("suzane", "models/trial2.obj", "model.vert", "model.frag");
 	Models Cube("cube" , "models/cube.obj", "model.vert", "model.frag");
 	Cube.modelScale = glm::vec3(0.03f);
 	Cube.modelPos = glm::vec3(0.0f, 2.0f, -3.0f);
 
 	std::vector<Models> sceneModels;
 	sceneModels.push_back(Suzane);
-	sceneModels.push_back(Cube);
+//	sceneModels.push_back(Cube);
 
 	glfwSetKeyCallback(window, KeyCallback);
 
@@ -125,7 +126,6 @@ int main()
 			modelMat = glm::translate(modelMat, sceneModels[i].modelPos);
 			modelMat = glm::scale(modelMat, sceneModels[i].modelScale);
 			sceneModels[i].shader.setMat4("model", modelMat);
-			std::cout << sceneModels[i].Name << std::endl;
 			sceneModels[i].model.Draw(sceneModels[i].shader, camera);
 
 		}
