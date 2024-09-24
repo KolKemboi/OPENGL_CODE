@@ -91,5 +91,7 @@
     <None Include="assimp-vc140-mt.dll" />
     <None Include="model.frag" />
     <None Include="model.vert" />
+    <None Include="outlining.vert" />
+    <None Include="outlining.frag" />
   </ItemGroup>
 </Project>

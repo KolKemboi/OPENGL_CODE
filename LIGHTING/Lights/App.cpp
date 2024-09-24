@@ -46,21 +46,6 @@ void closeWindow(GLFWwindow* window)
 const char* modelVertFile = "model.vert";
 const char* modelFragFile = "model.frag";
 
-struct Models
-{
-	const char* Name;
-	Model model;
-	Shader shader;
-	glm::vec3 modelPos;
-	glm::vec3 modelScale;
-
-	Models(const char* name,const std::string& modelPath, const char* vertFile, const char* fraFile) :
-		model(modelPath), shader(vertFile, fraFile), modelPos(glm::vec3(0.0f, 0.0f, 0.0f)), modelScale(glm::vec3(1.0f, 1.0f, 1.0f))
-	{
-		Name = name;
-	}
-
-};
 
 int main()
 {
@@ -80,6 +65,8 @@ int main()
 	glViewport(0, 0, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -89,62 +76,75 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 
-	Models Suzane("suzane", "models/trial2.obj", "model.vert", "model.frag");
-	Models Cube("cube" , "models/cube.obj", "model.vert", "model.frag");
-	Cube.modelScale = glm::vec3(0.03f);
-	Cube.modelPos = glm::vec3(0.0f, 2.0f, -3.0f);
-
-	std::vector<Models> sceneModels;
-	sceneModels.push_back(Suzane);
-//	sceneModels.push_back(Cube);
+	Model suzanne("models/suzanne.obj");
+	Shader objShader("model.vert", "model.frag");
+	Shader liningShader("outlining.vert", "outlining.frag");
 
 	glfwSetKeyCallback(window, KeyCallback);
 
-	while (!(glfwWindowShouldClose(window)))
-	{
-		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    while (!(glfwWindowShouldClose(window)))
+{
+    glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		
-		float crntTime = glfwGetTime();
-		deltaTime = crntTime - prevTime;
-		prevTime = crntTime;
+    float crntTime = glfwGetTime();
+    deltaTime = crntTime - prevTime;
+    prevTime = crntTime;
 
-		DoMovement();
-		camera.lookAround(window);
-		closeWindow(window);
+    DoMovement();
+    camera.lookAround(window);
+    closeWindow(window);
 
-		ImGui_ImplGlfw_NewFrame();
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui::NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui::NewFrame();
 
-		for (unsigned int i = 0; i < sceneModels.size(); i++)
-		{
-			sceneModels[i].shader.UseShader();
+    objShader.UseShader();
+    glm::mat4 modelMat = glm::mat4(1.0f);
+    modelMat = glm::translate(modelMat, glm::vec3(0.0, 0.0, 0.0));  
+    modelMat = glm::scale(modelMat, glm::vec3(1.0f));               
+    objShader.setMat4("model", modelMat);
 
-			glm::mat4 modelMat = glm::mat4(1.0f);
-			modelMat = glm::translate(modelMat, sceneModels[i].modelPos);
-			modelMat = glm::scale(modelMat, sceneModels[i].modelScale);
-			sceneModels[i].shader.setMat4("model", modelMat);
-			sceneModels[i].model.Draw(sceneModels[i].shader, camera);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);  
+    glStencilMask(0xFF);                
+    suzanne.Draw(objShader, camera);    
 
-		}
+    objShader.UseShader();
+    glm::mat4 modelMat2 = glm::mat4(1.0f);
+    modelMat2 = glm::translate(modelMat2, glm::vec3(1.0, 1.0, 2.0));  
+    modelMat2 = glm::scale(modelMat2, glm::vec3(0.5f));               
+    objShader.setMat4("model", modelMat2);
 
-		//for (auto& obj : sceneModels)
-		//{
-		//	obj.shader.UseShader();
-		//}
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);  
+    glStencilMask(0x00);                
+    suzanne.Draw(objShader, camera);    
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);  
+    glStencilMask(0x00);                  
+
+    liningShader.UseShader();
+    glm::mat4 StenmodelMat = glm::mat4(1.0f);
+    StenmodelMat = glm::translate(StenmodelMat, glm::vec3(0.0, 0.0, 0.0));  
+    StenmodelMat = glm::scale(StenmodelMat, glm::vec3(1.0f));              
+    liningShader.setMat4("model", StenmodelMat);
+    liningShader.setFloat("outlineThickness", 0.015);
+
+    suzanne.Draw(liningShader, camera);  
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);  
+    glStencilMask(0xFF);                
+    glEnable(GL_DEPTH_TEST);            
+
+    ImGui::Begin("Debug Window");
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwPollEvents();
+    glfwSwapBuffers(window);
+}
 
 
-		ImGui::Begin("Debug Window");
-		ImGui::End();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwPollEvents();
-		glfwSwapBuffers(window);
-
-	}
 
 	ImGui_ImplGlfw_Shutdown();
 	ImGui_ImplOpenGL3_Shutdown();

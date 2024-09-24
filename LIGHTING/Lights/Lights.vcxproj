@@ -169,6 +169,8 @@
     <None Include="assimp-vc140-mt.dll" />
     <None Include="model.frag" />
     <None Include="model.vert" />
+    <None Include="outlining.frag" />
+    <None Include="outlining.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
