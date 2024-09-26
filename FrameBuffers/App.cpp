@@ -106,8 +106,28 @@ GLuint objIndices[] = {
     13, 15, 14 // Facing side
 };
 
+// Quad vertices with texture coordinates
+GLfloat quadVertices[] = {
+    // Positions        // TexCoords
+    -1.0f,  1.0f,  0.0f,  1.0f, 1.0f,  // Top-left
+    -1.0f, -1.0f,  0.0f,  1.0f, 0.0f,  // Bottom-left
+     1.0f, -1.0f,  0.0f,  0.0f, 0.0f,  // Bottom-right
+     1.0f,  1.0f,  0.0f,  0.0f, 1.0f   // Top-right
+};
+
+GLuint quadIndices[] = {
+    0, 1, 2,  // First triangle
+    0, 2, 3   // Second triangle
+};
+
+
+
 void setModelUniform(Shader& shader, glm::vec3 Pos, glm::vec3 RotAxis, float rotAngle, glm::vec3 scale);
 
+void closeWindow(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+}
 int main()
 {
     glfwInit();
@@ -155,6 +175,19 @@ int main()
     glm::vec3 objRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
     float objRotAngle = 3.0f;
 
+    // Create and bind the VAO, VBO, and EBO for the quad
+    VertexArray quadVAO;
+    VertexBuffer quadVBO(quadVertices, sizeof(quadVertices));
+    ElementBuffer quadEBO(quadIndices, sizeof(quadIndices));
+
+    // Define the vertex attributes for the quad
+    quadVAO.LinkAttribArray(quadVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);           // Position attribute
+    quadVAO.LinkAttribArray(quadVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float))); // TexCoords attribute
+    quadVAO.UnbindVertArray();
+    quadEBO.UnbindElemBuffer();
+
+    Shader quadShader("quad.vert", "quad.frag");
+
     //Light Info
     VertexArray lightVAO;
     VertexBuffer lightVBO(lightVertices, sizeof(lightVertices));
@@ -172,15 +205,41 @@ int main()
     glm::vec3 lightRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
     float lightRotAngle = 0.0f;
 
+    //CREATING FRAMEBUFFER
+    unsigned int framebuffer, colorTexture, depthRenderBuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+    glGenTextures(1, &colorTexture);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+    glGenRenderbuffers(1, &depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cerr << "ERROR::FRAMEBUFFER IS NOT COMPLETE::" << std::endl;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     while (!(glfwWindowShouldClose(window)))
     {
-        glfwPollEvents();
+        closeWindow(window);
+       
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glEnable(GL_DEPTH_TEST);
+
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
 
         //obj Info
         objShader.UseShader();
@@ -203,9 +262,27 @@ int main()
         glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
         lightVAO.UnbindVertArray();
 
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        quadShader.UseShader();
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        quadVAO.BindVertArray();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+        glfwPollEvents();
+
     }
 
 
