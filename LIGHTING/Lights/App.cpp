@@ -108,6 +108,7 @@ int main()
     glStencilFunc(GL_ALWAYS, 1, 0xFF);  
     glStencilMask(0xFF);                
     suzanne.Draw(objShader, camera);    
+    
 
     objShader.UseShader();
     glm::mat4 modelMat2 = glm::mat4(1.0f);
@@ -119,6 +120,7 @@ int main()
     glStencilMask(0x00);                
     suzanne.Draw(objShader, camera);    
 
+    
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);  
     glStencilMask(0x00);                  
 
@@ -127,7 +129,7 @@ int main()
     StenmodelMat = glm::translate(StenmodelMat, glm::vec3(0.0, 0.0, 0.0));  
     StenmodelMat = glm::scale(StenmodelMat, glm::vec3(1.0f));              
     liningShader.setMat4("model", StenmodelMat);
-    liningShader.setFloat("outlineThickness", 0.015);
+    liningShader.setFloat("outlineThickness", 0.01);
 
     suzanne.Draw(liningShader, camera);  
 
