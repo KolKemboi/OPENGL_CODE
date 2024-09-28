@@ -26,14 +26,6 @@ public:
         glfwSetKeyCallback(window, keyCallback);
     }
 
-    void checkKey()
-    {
-        if (instance && instance->keys[GLFW_KEY_W]) std::cout << "W key is pressed" << std::endl;
-        if (instance && instance->keys[GLFW_KEY_A]) std::cout << "A key is pressed" << std::endl;
-        if (instance && instance->keys[GLFW_KEY_S]) std::cout << "S key is pressed" << std::endl;
-        if (instance && instance->keys[GLFW_KEY_D]) std::cout << "D key is pressed" << std::endl;
-    }
-
     std::string keyPressed()
     {
         if (instance) {
