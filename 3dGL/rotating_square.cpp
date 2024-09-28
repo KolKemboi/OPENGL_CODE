@@ -27,12 +27,17 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-		closeWindow(window);
+		//closeWindow(window);
 		glClearColor(0.2, 0.1, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		std::string crntKey = inputsHandler.keyPressed();
 
-		inputsHandler.checkKey();
+		
+		std::cout << crntKey << std::endl;
+
+		if (crntKey == "Escape") glfwSetWindowShouldClose(window, true);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
