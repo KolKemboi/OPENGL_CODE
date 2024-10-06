@@ -6,7 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-enum class EventType {
+enum class EventType 
+{
     MouseMoved,
     MouseButtonPressed,
     MouseButtonReleased,
@@ -15,12 +16,14 @@ enum class EventType {
 };
 
 // Base event structure
-struct Event {
+struct Event 
+{
     EventType type;
 };
 
 // Mouse event structure
-struct MouseEvent : public Event {
+struct MouseEvent : public Event 
+{
     double x;
     double y;
     int button;
@@ -32,7 +35,8 @@ struct MouseEvent : public Event {
 };
 
 // Keyboard event structure
-struct KeyboardEvent : public Event {
+struct KeyboardEvent : public Event 
+{
     int key;
     int mods;
 
@@ -42,7 +46,8 @@ struct KeyboardEvent : public Event {
     }
 };
 
-class EventDispatcher {
+class EventDispatcher 
+{
 public:
     using EventCallback = std::function<void(const Event&)>;
 
@@ -63,16 +68,19 @@ private:
     std::unordered_map<EventType, std::vector<EventCallback>> listeners;
 };
 
-class Mouse {
+class Mouse 
+{
 public:
     static double xpos, ypos;
     static bool buttons[3];
 
-    static void SetEventDispatcher(EventDispatcher* dispatcher) {
+    static void SetEventDispatcher(EventDispatcher* dispatcher) 
+    {
         eventDispatcher = dispatcher;
     }
 
-    static void MousePositionCallback(GLFWwindow* window, double x, double y) {
+    static void MousePositionCallback(GLFWwindow* window, double x, double y) 
+    {
         xpos = x;
         ypos = y;
 
@@ -80,14 +88,18 @@ public:
         eventDispatcher->Dispatch(event);
     }
 
-    static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-        if (button >= 0 && button < 3) {
-            if (action == GLFW_PRESS) {
+    static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) 
+    {
+        if (button >= 0 && button < 3) 
+        {
+            if (action == GLFW_PRESS) 
+            {
                 buttons[button] = true;
                 MouseEvent event(EventType::MouseButtonPressed, xpos, ypos, button);
                 eventDispatcher->Dispatch(event);
             }
-            else if (action == GLFW_RELEASE) {
+            else if (action == GLFW_RELEASE) 
+            {
                 buttons[button] = false;
                 MouseEvent event(EventType::MouseButtonReleased, xpos, ypos, button);
                 eventDispatcher->Dispatch(event);
@@ -99,18 +111,23 @@ private:
     static EventDispatcher* eventDispatcher;
 };
 
-class Keyboard {
+class Keyboard 
+{
 public:
-    static void SetEventDispatcher(EventDispatcher* dispatcher) {
+    static void SetEventDispatcher(EventDispatcher* dispatcher) 
+    {
         eventDispatcher = dispatcher;
     }
 
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-        if (action == GLFW_PRESS) {
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        if (action == GLFW_PRESS) 
+        {
             KeyboardEvent event(EventType::KeyPressed, key, mods);
             eventDispatcher->Dispatch(event);
         }
-        else if (action == GLFW_RELEASE) {
+        else if (action == GLFW_RELEASE) 
+        {
             KeyboardEvent event(EventType::KeyReleased, key, mods);
             eventDispatcher->Dispatch(event);
         }
