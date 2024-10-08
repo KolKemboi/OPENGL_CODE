@@ -1,0 +1,68 @@
+# Blender 3.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Arm
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/arm_dif.png
+map_Ks C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/arm_showroom_spec.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/arm_showroom_ddn.png
+
+newmtl Body
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/body_dif.png
+map_Ks C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/body_showroom_spec.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/body_showroom_ddn.png
+
+newmtl Glass
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/glass_dif.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/glass_ddn.png
+
+newmtl Hand
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/hand_dif.png
+map_Ks C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/hand_showroom_spec.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/hand_showroom_ddn.png
+
+newmtl Helmet
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/helmet_diff.png
+map_Ks C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/helmet_showroom_spec.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/helmet_showroom_ddn.png
+
+newmtl Leg
+Ns 96.078453
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/leg_dif.png
+map_Ks C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/leg_showroom_spec.png
+map_Bump C:/Users/kolke/Desktop/throw away projects/AnotherAssimp/res/models/leg_showroom_ddn.png
