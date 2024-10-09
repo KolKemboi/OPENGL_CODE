@@ -6,6 +6,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <glm/glm.hpp>
+#include "Shader.hpp"
+
 
 typedef unsigned int u_int;
 
@@ -16,48 +18,26 @@ struct Vertex
 	glm::vec3 Normal;
 };
 
-class Mesh
+struct Mesh
 {
-public:
-	std::vector <Vertex> m_Vertices;
-	std::vector <unsigned int> m_Indices;
-	u_int m_Vao;
-	Mesh(std::vector <Vertex> vertices, std::vector<u_int> indices)
-	{
-
-	}
-	void MeshDestroyer()
-	{
-
-	}
-	void DrawMesh()
-	{
-
-	}
-
-private:
-	u_int m_Vbo, m_Ebo;
-
+	u_int vertexArray;
+	u_int vertexBuffer;
+	u_int indexBuffer;
+	u_int shader;
+	size_t indexCount;
 };
 
-class ModelLoader
+Mesh CreateMesh(const std::string& modelPath)
 {
-public:
-	ModelLoader();
-	
-	void LoadMesh(std::string const& fileName)
-	{
+	Assimp::Importer importer;
 
+	const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
+
+	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cerr << "ERROR::ASSIMP IMPORTER::" << importer.GetErrorString() << std::endl;
+		return Mesh{};
 	}
 
-private:
-	void ProcessNode(aiNode* node, const aiScene* scene)
-	{
 
-	}
-	Mesh ProcessMesh(aiNode* mesh, const aiScene* scene)
-	{
-
-	}
-
-};
+}
