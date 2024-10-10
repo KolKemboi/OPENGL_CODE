@@ -1,3 +1,17 @@
+//Kemboi Cheruiyot 
+//Basic Template
+/*
+project dependencies
+    glfw
+    glad
+    glm
+    imgui
+    iostream
+    cerrno
+    fstream
+    sstream
+*/
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -15,7 +29,35 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 
+#include "Events/EventHandler.hpp"
+
+float lastFrame = 0.0f, deltaTime = 0.0f;
+
 const unsigned int width = 800, height = 800;
+Camera camera;
+
+EventHandler handler(camera);
+
+// GLFW callback functions
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    // Placeholder for key input logic
+}
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+    MouseMovement mouseMoveEvent(xpos, ypos);
+    handler.onEvent(mouseMoveEvent);
+}
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    MouseScrollEvent scrollEvent(xoffset, yoffset);
+    handler.onEvent(scrollEvent);
+}
+
+void windowSizeCallback(GLFWwindow* window, int width, int height) {
+    WindowResizeEvent resizeEvent(width, height);
+    handler.onEvent(resizeEvent);
+}
+
 
 GLfloat lightVertices[] = {
     // Front face
@@ -120,7 +162,6 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-    Camera camera;
 
     //Pyramid Info
     VertexArray objVAO;
@@ -141,25 +182,24 @@ int main()
     glm::vec3 objRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
     float objRotAngle = 3.0f;
 
-    //Light Info
-    VertexArray lightVAO;
-    VertexBuffer lightVBO(lightVertices, sizeof(lightVertices));
-    ElementBuffer lightEBO(lightIndices, sizeof(lightIndices));
 
-    lightEBO.BindElemBuffer();
-    lightVAO.LinkAttribArray(lightVBO, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-    lightVAO.LinkAttribArray(lightVBO, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    lightVAO.UnbindVertArray();
-    lightEBO.UnbindElemBuffer();
-    Shader lightShader("light.vert", "light.frag");
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+    glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-    glm::vec3 lightPos = glm::vec3(0.5f, 2.0f, 0.0f);
-    glm::vec3 lightScale = glm::vec3(0.2f);
-    glm::vec3 lightRotAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-    float lightRotAngle = 0.0f;
+
 
     while (!(glfwWindowShouldClose(window)))
     {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // Update event handler with delta time
+        handler.setDeltaTime(deltaTime);
+
+
         glfwPollEvents();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,17 +217,6 @@ int main()
         objVAO.BindVertArray();
         glDrawElements(GL_TRIANGLES, sizeof(objIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
         objVAO.UnbindVertArray();
-
-
-        //light Info
-        lightShader.UseShader();
-
-        setModelUniform(lightShader, lightPos, lightRotAxis, lightRotAngle, lightScale);
-        camera.setCamVectors(lightShader);
-
-        lightVAO.BindVertArray();
-        glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
-        lightVAO.UnbindVertArray();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

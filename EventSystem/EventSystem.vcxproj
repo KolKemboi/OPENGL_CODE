@@ -152,6 +152,10 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ElementBuffer.hpp" />
+    <ClInclude Include="Events\EventHandler.hpp" />
+    <ClInclude Include="Events\Events.hpp" />
+    <ClInclude Include="Events\MouseEvents.hpp" />
+    <ClInclude Include="Events\WindowEvents.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
