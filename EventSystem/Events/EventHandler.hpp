@@ -71,11 +71,11 @@ private:
             // Check if Control is pressed (move forward/backward)
             else if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
                 glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
-                m_Camera.moveForward(yOffset, m_DeltaTime); // Move forward/backward
+                m_Camera.moveForward(-yOffset, m_DeltaTime); // Move forward/backward
             }
             // No modifier keys, default to orbiting
             else {
-                m_Camera.orbit(xOffset, yOffset, m_DeltaTime); // Orbit around a target
+                m_Camera.orbit(-xOffset, yOffset, m_DeltaTime); // Orbit around a target
             }
         }
 
@@ -102,16 +102,19 @@ private:
 
         // WASD camera movement
         if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W) == GLFW_PRESS) {
-            m_Camera.moveForward(cameraSpeed, m_DeltaTime); // Move forward
+            m_Camera.moveAround(FORWARD, m_DeltaTime);
         }
         if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS) {
-            m_Camera.moveForward(-cameraSpeed, m_DeltaTime); // Move backward
+            m_Camera.moveAround(BACKWARD, m_DeltaTime);
+            // Move backward
         }
         if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_A) == GLFW_PRESS) {
-            m_Camera.translate(-cameraSpeed, 0.0f, m_DeltaTime); // Move left
+            m_Camera.moveAround(LEFT, m_DeltaTime);
+            // Move left
         }
         if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_D) == GLFW_PRESS) {
-            m_Camera.translate(cameraSpeed, 0.0f, m_DeltaTime); // Move right
+            m_Camera.moveAround(RIGHT, m_DeltaTime);
+            // Move right
         }
     }
 };

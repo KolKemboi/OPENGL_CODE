@@ -33,7 +33,7 @@ project dependencies
 
 float lastFrame = 0.0f, deltaTime = 0.0f;
 
-const unsigned int width = 800, height = 800;
+unsigned int Window_width = 800, Window_height = 800;
 Camera camera;
 
 EventHandler handler(camera);
@@ -54,8 +54,13 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 }
 
 void windowSizeCallback(GLFWwindow* window, int width, int height) {
+    Window_width = static_cast<int>(width);
+    Window_height = static_cast<int>(height);
+
     WindowResizeEvent resizeEvent(width, height);
     handler.onEvent(resizeEvent);
+
+    glViewport(0, 0, width, height);
 }
 
 
@@ -144,7 +149,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //Change Window Name
-    GLFWwindow* window = glfwCreateWindow(width, height, "Change Window Name", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(Window_width, Window_height, "Change Window Name", nullptr, nullptr);
     if (window == NULL)
     {
         std::cerr << "Failed" << std::endl;

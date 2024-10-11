@@ -7,6 +7,17 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+enum Camera_Movement
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+};
+
+
 class Camera
 {
 public:
@@ -38,6 +49,18 @@ public:
         if (m_Pitch < -89.0f) m_Pitch = -89.0f; // Fix: Correctly clamping the pitch
 
         updateCamVectors();
+    }
+    
+    void moveAround(Camera_Movement dir, float deltaTime)
+    {
+        float velocity = m_WASDSpeed * deltaTime;
+        if (dir == FORWARD) m_Position += m_Front * velocity;
+        if (dir == BACKWARD) m_Position -= m_Front * velocity;
+        if (dir == RIGHT) m_Position += m_Right * velocity;
+        if (dir == LEFT) m_Position -= m_Right * velocity;
+        if (dir == UP) m_Position += m_Up * velocity;
+        if (dir == DOWN) m_Position -= m_Up * velocity;
+
     }
 
     void moveForward(float yOffset, float deltaTime)
