@@ -53,19 +53,30 @@ void main()
 }
 )";
 
-float vertices[] =
-{
-	 0.5,  0.5, -0.5, 1.0, 0.0, 0.0,
-	 0.5, -0.5,  0.5, 0.0, 1.0, 0.0,
-	-0.5, -0.5,  0.5, 0.0, 0.0, 1.0,
-	-0.5,  0.5, -0.5, 1.0, 1.0, 1.0,
+float vertices[] = {
+	// Positions          // Colors
+	// Base (Square)
+	-0.5f, 0.0f, -0.5f,   1.0f, 0.0f, 0.0f,   // Bottom left
+	 0.5f, 0.0f, -0.5f,   0.0f, 1.0f, 0.0f,   // Bottom right
+	 0.5f, 0.0f,  0.5f,   0.0f, 0.0f, 1.0f,   // Top right
+	-0.5f, 0.0f,  0.5f,   1.0f, 1.0f, 0.0f,   // Top left
 
+	// Tip (Apex)
+	 0.0f,  0.75f,  0.0f,  1.0f, 0.0f, 1.0f,   // Apex
 };
-u_int indices[] = 
-{
-	0, 1, 2,
-	2, 3, 0,
+
+u_int indices[] = {
+	// Triangular sides
+	0, 1, 4,  // First triangle (left side)
+	1, 2, 4,  // Second triangle (front side)
+	2, 3, 4,  // Third triangle (right side)
+	3, 0, 4,  // Fourth triangle (back side)
+
+	// Base (Square)
+	0, 1, 2,  // First triangle for the base
+	2, 3, 0   // Second triangle for the base
 };
+
 
 void closeWindow(GLFWwindow* window)
 {
@@ -139,6 +150,7 @@ int main()
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
+	float rot_angle = 0.0;
 	while (!(glfwWindowShouldClose(window)))
 	{
 		closeWindow(window);
@@ -146,9 +158,11 @@ int main()
 		glClearColor(0.2, 0.1, 0.3, 1.0);
 
 		glUseProgram(shaderProg);
-		//------get uniform data then set the model, view and projection matrices----------------
+		//---------------------MODEL VIEW PROJECTION STUFF----------------
 
 		model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(2.0f));
+		model = glm::rotate(model, glm::radians(rot_angle), glm::vec3(0.0f, 1.0f, 0.0));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProg, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		view = glm::lookAt(pos, pos + front, up);
@@ -167,6 +181,7 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
 		ImGui::Begin("Scene");
+		ImGui::SliderFloat("angle", &rot_angle, 0, 360);
 		ImGui::End();
 
 		ImGui::Render();
