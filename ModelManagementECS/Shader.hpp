@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 typedef unsigned int u_int;
 
-const char* VertexShader = 
+const char* _vertexShader = 
 R"(
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNorm;
@@ -23,7 +23,7 @@ void main()
 )";
 
 
-const char* FragmentShader = 
+const char* _fragmentShader = 
 R"(
 
 out vec4 FragColor;
@@ -32,7 +32,7 @@ in vec3 Normal;
 
 void main()
 {
-	FragColor = vec4(Normal, 1.0f);
+	FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 }
 )";
 
@@ -42,11 +42,11 @@ public:
 	Shader()
 	{
 		this->m_VertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(this->m_VertexShader, 1, &VertexShader, 0);
+		glShaderSource(this->m_VertexShader, 1, &_vertexShader, 0);
 		glCompileShader(this->m_VertexShader);
 		
 		this->m_FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(this->m_FragmentShader, 1, &FragmentShader, 0);
+		glShaderSource(this->m_FragmentShader, 1, &_fragmentShader, 0);
 		glCompileShader(this->m_FragmentShader);
 
 		this->m_ShaderProgram = glCreateProgram();

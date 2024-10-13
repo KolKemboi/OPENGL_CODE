@@ -31,6 +31,7 @@ public:
 		glViewport(0, 0, static_cast<u_int>(this->m_Width), static_cast<u_int>(this->m_Height));
 		glEnable(GL_DEPTH_TEST);
 
+		createModelEntity(registry, "untitled.obj");
 
 
 	}
@@ -46,6 +47,7 @@ public:
 			this->closeWindow(this->m_Window);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
+			renderSystem(registry);
 
 			glfwSwapBuffers(this->m_Window);
 			glfwPollEvents();
@@ -55,11 +57,11 @@ public:
 private:
 	GLFWwindow* m_Window;
 	u_int m_Width = 1280, m_Height = 1028;
+	entt::registry registry;
 
 	void closeWindow(GLFWwindow* window)
 	{
-		std::cout << "PRESSED" << std::endl;
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(m_Window, true);
 	}
 
 };
