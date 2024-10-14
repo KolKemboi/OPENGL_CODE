@@ -44,6 +44,7 @@ public:
 
     void ProcessKeyboard(CameraMovement direction, float deltaTime)
     {
+        std::cout << "Moved" << std::endl;
         float velocity = MovementSpeed * deltaTime;
         if (direction == FORWARD)
             Position += Front * velocity;
@@ -57,6 +58,7 @@ public:
 
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true)
     {
+        std::cout << "Mouse MouseMouse MouseMouse MouseMouse Mouse" << std::endl;
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 

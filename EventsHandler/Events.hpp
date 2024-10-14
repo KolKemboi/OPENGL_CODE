@@ -8,6 +8,7 @@
 #include <vector>
 #include "Camera.hpp"
 #include <iostream>
+#include <array>
 
 
 enum class EventType
@@ -53,12 +54,13 @@ struct KeyBoardEvent : public Event
 
 struct WindowResizeEvent : public Event
 {
-	int width;
-	int height;
+	std::unordered_map<std::string, int> size; // Store width and height as a map
 
-	WindowResizeEvent(int width, int height) : width(width), height(height)
+	WindowResizeEvent(int width, int height)
 	{
 		this->type = EventType::WindowResized;
+		size["width"] = width;
+		size["height"] = height;
 	}
 };
 
@@ -144,20 +146,35 @@ public:
 
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		if (action == GLFW_PRESS)
+		if(key >= 0 && key < keyStates.size())
 		{
-			KeyBoardEvent event(EventType::KeyPressed, key, mods);
-			eventDispatcher->Dispatch(event);
+			if (action == GLFW_PRESS)
+			{
+				keyStates[key] = true;
+				KeyBoardEvent event(EventType::KeyPressed, key, mods);
+				eventDispatcher->Dispatch(event);
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				keyStates[key] = false;
+				KeyBoardEvent event(EventType::KeyReleased, key, mods);
+				eventDispatcher->Dispatch(event);
+			}
 		}
-		else if (action == GLFW_RELEASE)
+	}
+
+	static bool IsKeyPressed(int key)
+	{
+		if (key >= 0 && key < keyStates.size())
 		{
-			KeyBoardEvent event(EventType::KeyReleased, key, mods);
-			eventDispatcher->Dispatch(event);
+			return keyStates[key];
 		}
+		return false; // Return false for out-of-bounds keys
 	}
 
 private:
 	static EventDispatcher* eventDispatcher;
+	static std::array<bool, 1024> keyStates;
 };
 
 
@@ -188,13 +205,14 @@ bool Mouse::buttons[3] = { false, false, false };
 EventDispatcher* Mouse::eventDispatcher = nullptr;
 EventDispatcher* Keyboard::eventDispatcher = nullptr;
 EventDispatcher* Window::eventDispatcher = nullptr;
+std::array<bool, 1024> Keyboard::keyStates = { false };
 
 
 class EventHandler
 {
 public:
 	EventHandler(EventDispatcher& dispatcher, Camera& camera) :
-		camera(camera), lastX(400), lastY(400), fistClick(true), deltaTime(0.0f), lastFrame(0.0f)
+		camera(camera), lastX(400), lastY(400), firstClick(true), deltaTime(0.0f), lastFrame(0.0f)
 	{
 		dispatcher.Subscribe(EventType::MouseMoved, [this](const Event& event) {
 			const MouseEvent& mouseEvent = static_cast<const MouseEvent&>(event);
@@ -240,21 +258,54 @@ public:
 		lastFrame = currentFrame;
 	}
 
+	std::unordered_map<std::string, float> GetMousePos() const
+	{
+		std::unordered_map<std::string, float> mousePos = {
+		{"mouseX", lastX},
+		{"mouseY", lastY}
+		};
+		return mousePos;
+	}
+
+	bool IsLeftMousePressed() const
+	{
+		return leftMousePressed;
+	}
+
+	bool IsRightMousePressed() const
+	{
+		return rightMousePressed;
+	}
+
+	bool IsMiddleMousePressed() const
+	{
+		return middleMousePressed;
+	}
+	
+	std::unordered_map<std::string, int> GetWindowSize() const
+	{
+		return windowSize;
+	}
+
 private:
 	Camera& camera;
 	float lastX, lastY;
-	bool fistClick;
+	bool firstClick;
 	float deltaTime, lastFrame;
-
+	bool middleMousePressed = false;
+	bool leftMousePressed = false;
+	bool rightMousePressed = false;
+	std::unordered_map<std::string, int> windowSize;
 
 	void OnMouseMove(const MouseEvent& event)
 	{
-		std::cout << "Mouse moved to: (" << event.x << ", " << event.y << ")" << std::endl;
-		if (fistClick)
+		
+
+		if (firstClick)
 		{
 			lastX = event.x;
 			lastY = event.y;
-			fistClick = false;
+			firstClick = false;
 		}
 
 		float xOffset = event.x - lastX;
@@ -263,48 +314,62 @@ private:
 		lastX = event.x;
 		lastY = event.y;
 
-		camera.ProcessMouseMovement(xOffset, yOffset);
+		if (middleMousePressed)
+			camera.ProcessMouseMovement(xOffset, yOffset);
 
 
 	}
 	void OnMouseButtonPress(const MouseEvent& event)
 	{
-		std::cout << "Mouse button pressed at: (" << event.x << ", " << event.y << "), button: " << event.button << std::endl;
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT)
+			leftMousePressed = true;
+		
+		if (event.button == GLFW_MOUSE_BUTTON_RIGHT)
+			rightMousePressed = true;
+		
+		if (event.button == GLFW_MOUSE_BUTTON_MIDDLE)
+			middleMousePressed = true;
 	}
 	void OnMouseButtonRelease(const MouseEvent& event)
 	{
-		std::cout << "Mouse button released at: (" << event.x << ", " << event.y << "), button: " << event.button << std::endl;
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			leftMousePressed = false;
+		}
+		else if (event.button == GLFW_MOUSE_BUTTON_RIGHT)
+		{
+			rightMousePressed = false;
+		}
+		else if (event.button == GLFW_MOUSE_BUTTON_MIDDLE)
+		{
+			middleMousePressed = false;
+			firstClick = true;  // Reset first click flag
+		}
+
 	}
 
 	void OnKeyPress(const KeyBoardEvent& event)
 	{
-		std::cout << "Key pressed: " << event.key << " with mods: " << event.mods << std::endl;
-		if (event.key == GLFW_KEY_W)
-		{
+		if (Keyboard::IsKeyPressed(GLFW_KEY_W) || Keyboard::IsKeyPressed(GLFW_KEY_UP))
 			camera.ProcessKeyboard(FORWARD, deltaTime);
-		}
-		else if (event.key == GLFW_KEY_S)
-		{
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_S) || Keyboard::IsKeyPressed(GLFW_KEY_DOWN))
 			camera.ProcessKeyboard(BACKWARD, deltaTime);
-		}
-		else if (event.key == GLFW_KEY_A)
-		{
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_A) || Keyboard::IsKeyPressed(GLFW_KEY_LEFT))
 			camera.ProcessKeyboard(LEFT, deltaTime);
-		}
-		else if (event.key == GLFW_KEY_D)
-		{
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_D) || Keyboard::IsKeyPressed(GLFW_KEY_RIGHT))
 			camera.ProcessKeyboard(RIGHT, deltaTime);
-		}
 	}
 
 	void OnKeyRelease(const KeyBoardEvent& event)
 	{
-		std::cout << "Key released: " << event.key << " with mods: " << event.mods << std::endl;
 	}
 
 	void OnWindowResize(const WindowResizeEvent& event)
 	{
-		std::cout << "Window resized to: " << event.width << "x" << event.height << std::endl;
-		glViewport(0, 0, event.width, event.height);
+		windowSize = event.size;
+		glViewport(0, 0, windowSize["width"], windowSize["height"]);
 	}
 };

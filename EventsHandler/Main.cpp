@@ -46,10 +46,36 @@ int main()
 	while (!(glfwWindowShouldClose(window)))
 	{
 		eventHandler.UpdateDeltaTime();
-		closeWindow(window);
+		//closeWindow(window);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClearColor(0.1, 0.1, 0.1, 1.0);
 
+		if (eventHandler.IsLeftMousePressed())
+		{
+			auto pos = eventHandler.GetMousePos();
+			std::cout << "Left mouse button pressed at: (" << pos["mouseX"] << ", " << pos["mouseY"] << ")" << std::endl;
+		}
+
+		if (eventHandler.IsRightMousePressed())
+		{
+			auto pos = eventHandler.GetMousePos();
+			std::cout << "Right mouse button pressed at: (" << pos["mouseX"] << ", " << pos["mouseY"] << ")" << std::endl;
+		}
+
+		if (eventHandler.IsMiddleMousePressed())
+		{
+			auto pos = eventHandler.GetMousePos();
+			std::cout << "Middle mouse button pressed at: (" << pos["mouseX"] << ", " << pos["mouseY"] << ")" << std::endl;
+		}
+
+		if(Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
+			glfwSetWindowShouldClose(window, true);
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_CONTROL ))
+			std::cout << "controlcontrolcontrolcontrolcontrolcontrolcontrol" << std::endl;
+		
+		std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
+		//std::cout << "Window Size: " << windowSize["width"] << " x " << windowSize["height"] << std::endl;
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
