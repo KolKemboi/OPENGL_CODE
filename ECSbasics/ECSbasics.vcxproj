@@ -140,14 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="App.cpp" />
-    <ClCompile Include="main.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Entity.hpp" />
-    <ClInclude Include="ModelLoader.hpp" />
-    <ClInclude Include="Shader.hpp" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
