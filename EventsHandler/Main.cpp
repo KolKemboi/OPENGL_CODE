@@ -40,6 +40,7 @@ int main()
 	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
 	glfwSetKeyCallback(window, Keyboard::keyCallback);
 	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
+	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 
 
 

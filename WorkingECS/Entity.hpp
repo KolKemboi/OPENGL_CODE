@@ -25,22 +25,25 @@ entt::entity CreateEntity(entt::registry& registry, const std::string& path) {
     return entity;
 }
 
-void Render(entt::registry& registry, const glm::mat4& view, const glm::mat4& projection) {
-    registry.view<Mesh, Transform>().each([&](auto, Mesh& mesh, Transform& trans) {
-        glUseProgram(mesh.shaderProgram);
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), trans.position);
-        model = glm::rotate(model, glm::radians(trans.rotation.x), glm::vec3(1, 0, 0));
-        model = glm::rotate(model, glm::radians(trans.rotation.y), glm::vec3(0, 1, 0));
-        model = glm::rotate(model, glm::radians(trans.rotation.z), glm::vec3(0, 0, 1));
-        model = glm::scale(model, trans.scale);
+void Render(entt::registry& registry, const glm::mat4& view, const glm::mat4& projection)
+{
+    registry.view<Mesh, Transform>().each([&](auto, Mesh& mesh, Transform& trans)
+        {
+            glUseProgram(mesh.shaderProgram);
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), trans.position);
+            model = glm::rotate(model, glm::radians(trans.rotation.x), glm::vec3(1, 0, 0));
+            model = glm::rotate(model, glm::radians(trans.rotation.y), glm::vec3(0, 1, 0));
+            model = glm::rotate(model, glm::radians(trans.rotation.z), glm::vec3(0, 0, 1));
+            model = glm::scale(model, trans.scale);
 
-        glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(mesh.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        glBindVertexArray(mesh.VAO);
-        glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
-        });
+            glBindVertexArray(mesh.VAO);
+            glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+            glBindVertexArray(0);
+        }
+    );
 }
 

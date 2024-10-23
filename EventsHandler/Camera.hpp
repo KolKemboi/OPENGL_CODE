@@ -76,6 +76,12 @@ public:
         updateCameraVectors();
     }
 
+    void ProcesssMouseScroll(double offset, float deltaTime)
+    {
+        float velocity = MovementSpeed * deltaTime;
+        std::cout << "Scroll" << offset << std::endl;
+    }
+
 private:
     void updateCameraVectors()
     {

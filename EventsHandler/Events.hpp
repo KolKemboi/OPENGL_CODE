@@ -16,6 +16,7 @@ enum class EventType
 	MouseMoved,
 	MouseButtonPressed,
 	MouseButtonReleased,
+	MouseScroll,
 	KeyPressed,
 	KeyReleased,
 	WindowResized,
@@ -62,6 +63,18 @@ struct WindowResizeEvent : public Event
 		size["width"] = width;
 		size["height"] = height;
 	}
+};
+
+struct MouseScrollEvent : public Event
+{
+	double xOffset;
+	double yOffset;
+
+	MouseScrollEvent(double xOffset, double yOffset) : xOffset(xOffset), yOffset(yOffset)
+	{
+		this->type = EventType::MouseScroll;
+	}
+
 };
 
 class EventDispatcher
@@ -129,7 +142,11 @@ public:
 		}
 	}
 
-
+	static void MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+	{
+		MouseScrollEvent event(xOffset, yOffset);
+		eventDispatcher->Dispatch(event);
+	}
 
 
 private:
@@ -248,6 +265,12 @@ public:
 				const WindowResizeEvent& windowEvent= static_cast<const WindowResizeEvent&>(event);
 				OnWindowResize(windowEvent);
 			});
+		dispatcher.Subscribe(EventType::MouseScroll, [this](const Event& event)
+			{
+				const MouseScrollEvent& scrollEvent = static_cast<const MouseScrollEvent&>(event);
+				OnMouseScroll(scrollEvent);
+			});
+
 
 	}
 
@@ -371,5 +394,10 @@ private:
 	{
 		windowSize = event.size;
 		glViewport(0, 0, windowSize["width"], windowSize["height"]);
+	}
+
+	void OnMouseScroll(const MouseScrollEvent& event)
+	{
+		camera.ProcesssMouseScroll(event.yOffset, deltaTime);
 	}
 };
