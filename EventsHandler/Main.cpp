@@ -47,6 +47,7 @@ int main()
 	while (!(glfwWindowShouldClose(window)))
 	{
 		eventHandler.UpdateDeltaTime();
+
 		//closeWindow(window);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClearColor(0.1, 0.1, 0.1, 1.0);
