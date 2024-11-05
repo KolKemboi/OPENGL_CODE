@@ -38,10 +38,35 @@ class Shader
 public:
     Shader()
     {
+        m_VertShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(m_VertShader, 1, &vertexSource, NULL);
+        glCompileShader(m_VertShader);
+
+        m_FragShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(m_FragShader, 1, &fragmentSource, NULL);
+        glCompileShader(m_FragShader);
+
+        m_Shader = glCreateProgram();
+        glAttachShader(m_Shader, m_VertShader);
+        glAttachShader(m_Shader, m_FragShader);
+        glLinkProgram(m_Shader);
+
+        glDeleteShader(m_FragShader);
+        glDeleteShader(m_VertShader);
 
     }
 
+    void DestroyShader()
+    {
+        glDeleteProgram(m_Shader);
+        m_FragShader = 0;
+        m_VertShader = 0;
+        m_Shader = 0;
+    }
+
     u_int retShader() const { return m_Shader; }
+
+    void useShader() const { glUseProgram(m_Shader); }
 private:
     u_int m_Shader, m_VertShader, m_FragShader;
 };

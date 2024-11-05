@@ -8,6 +8,7 @@
 
 
 #include "MeshLoader.h"
+#include "RenderSystem.h"
 
 typedef unsigned int u_int;
 
@@ -33,6 +34,7 @@ void closeWindow(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 }
+RenderSystem renderer;
 
 int main()
 {
@@ -52,7 +54,6 @@ int main()
 
 	gladLoadGL();
 	glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
-	glEnable(GL_DEPTH_TEST);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -61,23 +62,18 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
+		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
+			, glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
+
 	while (!(glfwWindowShouldClose(window)))
 	{
 		closeWindow(window);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		renderer.initScene();
 
-		glClearColor(0.2, 0.1, 0.3, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.Render(myMesh);
 
-		Mesh myMesh = mesh_creater(verts, idxs, glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
 
-		glm::vec3 position = myMesh.m_Transform.m_Position;
-		glm::vec3 scale = myMesh.m_Transform.m_Scale;
-		glm::vec3 rotation = myMesh.m_Transform.m_Rotation;
-
-		std::cout << myMesh.m_Shader << std::endl;
-		
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
@@ -86,9 +82,10 @@ int main()
 		ImGui::Text("This Is A Debug Window");
 		ImGui::End();
 
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+		renderer.clearScene(window);
 
 	}
 

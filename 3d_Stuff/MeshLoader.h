@@ -25,25 +25,25 @@ struct Transform
 struct Mesh
 {
 	u_int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
-	u_int m_Shader;
+	Shader m_Shader;
 	Transform m_Transform;
+	u_int m_indexCount;
 
-	Mesh(u_int vao, u_int vbo, u_int ibo, u_int shader, Transform transform)
-		: m_VertexArray(vao), m_VertexBuffer(vbo), m_IndexBuffer(ibo),m_Shader(shader), m_Transform(transform)
+	Mesh(u_int vao, u_int vbo, u_int ibo, Shader shader, u_int indexCount, Transform transform)
+		: m_VertexArray(vao), m_VertexBuffer(vbo), m_IndexBuffer(ibo),m_Shader(shader), m_Transform(transform), m_indexCount(indexCount)
 	{
 
 	}
 
 };
 
-Mesh mesh_creater(float *vertices, u_int *indices, 
+Mesh mesh_creator(float *vertices, GLsizei vertexCount, u_int *indices, u_int indexCount,
 	glm::vec3 pos = glm::vec3(0.0), glm::vec3 scale = glm::vec3(1.0), glm::vec3 rot = glm::vec3(0.0))
 {
 	u_int vao = 0, vbo = 0, ibo = 0;
 
-	Shader meshshader;
+	Shader meshShader;
 
-	u_int shader = meshshader.retShader();
 	Transform transform(pos, scale, rot);
 
 	glGenVertexArrays(1, &vao);
@@ -51,11 +51,11 @@ Mesh mesh_creater(float *vertices, u_int *indices,
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(&vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexCount, vertices, GL_STATIC_DRAW);
 	
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(&indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u_int) * indexCount, indices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(0));
@@ -64,8 +64,7 @@ Mesh mesh_creater(float *vertices, u_int *indices,
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	return Mesh(vao, vbo, ibo, shader, transform);
+
+	return Mesh(vao, vbo, ibo, meshShader, indexCount, transform);
 }
