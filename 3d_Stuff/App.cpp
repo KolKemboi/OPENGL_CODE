@@ -17,7 +17,6 @@ typedef unsigned int u_int;
 u_int width = 800, height = 800;
 float verts[] =
 {
-	-0.5,  -0.5,  0.0,    0.0,   1.0,   0.0, //GREEN
 	// POSITION           // COLORS
 	// Front face (Z = 0.5)
 	0.5,  0.5,  0.5,    1.0, 0.0, 0.0, // Top-right (red)
