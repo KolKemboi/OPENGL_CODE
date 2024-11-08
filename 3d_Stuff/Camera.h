@@ -44,7 +44,7 @@ public:
 
 	void SetView(Mesh& mesh) 
 	{
-		this->m_View = glm::lookAt(this->m_Pos, this->m_Pos + this->m_Front, this->m_Up);
+		this->m_View = glm::lookAt(this->m_Pos, glm::vec3(0.0f, 0.0f, 0.0f), this->m_Up);
 		glUniformMatrix4fv(glGetUniformLocation(mesh.m_Shader.retShader(), "view"), 1, GL_FALSE, glm::value_ptr(this->m_View));
 	}
 

@@ -28,6 +28,11 @@ struct Mesh
 	Shader m_Shader;
 	Transform m_Transform;
 	u_int m_indexCount;
+	
+	Mesh()
+		: m_VertexArray(0), m_VertexBuffer(0), m_IndexBuffer(0), m_Shader(), m_Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f)), m_indexCount(0)
+	{
+	}
 
 	Mesh(u_int vao, u_int vbo, u_int ibo, Shader shader, u_int indexCount, Transform transform)
 		: m_VertexArray(vao), m_VertexBuffer(vbo), m_IndexBuffer(ibo),m_Shader(shader), m_Transform(transform), m_indexCount(indexCount)
@@ -38,7 +43,7 @@ struct Mesh
 };
 
 Mesh mesh_creator(float *vertices, GLsizei vertexCount, u_int *indices, u_int indexCount,
-	glm::vec3 pos = glm::vec3(0.0), glm::vec3 scale = glm::vec3(1.0), glm::vec3 rot = glm::vec3(0.0))
+	glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 rot = glm::vec3(0.0f, 0.0f, 0.0f))
 {
 	u_int vao = 0, vbo = 0, ibo = 0;
 

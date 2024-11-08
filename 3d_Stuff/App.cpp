@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
-
+#include <vector>
+#include <unordered_map>
 
 #include "MeshLoader.h"
 #include "RenderSystem.h"
@@ -14,7 +15,7 @@
 typedef unsigned int u_int;
 
 
-u_int width = 800, height = 800;
+u_int width = 1920, height = 1080;
 float verts[] =
 {
 	// POSITION           // COLORS
@@ -91,6 +92,9 @@ void closeWindow(GLFWwindow* window)
 RenderSystem renderer;
 Camera camera;
 
+std::unordered_map<std::string, Mesh> meshes;
+
+
 int main()
 {
 	glfwInit();
@@ -119,7 +123,14 @@ int main()
 
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
 		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
-			, glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
+			, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
+
+	Mesh myMesh2 = mesh_creator(verts, sizeof(verts), idxs,
+		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
+		, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
+
+	meshes["mesh_1"] = myMesh;
+	meshes["mesh_2"] = myMesh2;
 
 	while (!(glfwWindowShouldClose(window)))
 	{
@@ -132,12 +143,16 @@ int main()
 		then render to a frame buffer;
 		then render to an ImGui window;
 		*/
-		myMesh.m_Transform.m_Scale = glm::vec3(1.0);//this is how I scale it up and down
+		//meshes["mesh_1"].m_Transform.m_Scale = glm::vec3(0.2);//this is how I scale it up and down
 	
 
 		renderer.initScene();
 
-		renderer.Render(myMesh, camera, width, height);
+		for (auto& [key, mesh] : meshes)
+		{
+			std::cout << key << std::endl;
+			renderer.Render(mesh, camera, width, height);
+		}
 
 
 		ImGui_ImplGlfw_NewFrame();
@@ -146,6 +161,15 @@ int main()
 
 		ImGui::Begin("Debug Window");
 		ImGui::Text("This Is A Debug Window");
+
+		// Scale controls for mesh_1 and mesh_2
+		ImGui::SliderFloat3("Model_1 Scale", &meshes["mesh_1"].m_Transform.m_Scale[0], 0.1f, 5.0f);
+		ImGui::SliderFloat3("Model_2 Scale", &meshes["mesh_2"].m_Transform.m_Scale[0], 0.1f, 5.0f);
+
+		// Location controls for mesh_1 and mesh_2
+		ImGui::SliderFloat3("Model_1 Location", &meshes["mesh_1"].m_Transform.m_Position[0], -5.0f, 5.0f);
+		ImGui::SliderFloat3("Model_2 Location", &meshes["mesh_2"].m_Transform.m_Position[0], -5.0f, 5.0f);
+
 		ImGui::End();
 
 		ImGui::Render();
