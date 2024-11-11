@@ -74,3 +74,16 @@ public:
 private:
     u_int m_Shader, m_VertShader, m_FragShader;
 };
+
+
+class ModelShader : public Shader {
+public:
+    ModelShader()
+        : Shader(/*"shaders/object/model.vert", "shaders/object/model.frag"*/) {}  // Paths with the 'object' directory
+};
+
+class LightShader : public Shader {
+public:
+    LightShader()
+        : Shader(/*"shaders/light/light.vert", "shaders/light/light.frag"*/) {}  // Paths with the 'light' directory
+};

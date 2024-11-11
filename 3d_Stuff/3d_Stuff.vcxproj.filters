@@ -87,4 +87,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\object\model.vert" />
+    <None Include="shaders\object\model.frag" />
+    <None Include="shaders\light\light.frag" />
+    <None Include="shaders\light\light.vert" />
+  </ItemGroup>
 </Project>

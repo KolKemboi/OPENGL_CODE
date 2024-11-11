@@ -167,6 +167,12 @@
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\light\light.frag" />
+    <None Include="shaders\light\light.vert" />
+    <None Include="shaders\object\model.frag" />
+    <None Include="shaders\object\model.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
