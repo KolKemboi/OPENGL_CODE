@@ -132,6 +132,8 @@ int main()
 	meshes["mesh_1"] = myMesh;
 	meshes["mesh_2"] = myMesh2;
 
+	float sensitivity = 20.0f, speed = 10.0f;
+
 	while (!(glfwWindowShouldClose(window)))
 	{
 		closeWindow(window);
@@ -171,6 +173,19 @@ int main()
 		ImGui::SliderFloat3("Model_2 Location", &meshes["mesh_2"].m_Transform.m_Position[0], -5.0f, 5.0f);
 
 		ImGui::End();
+
+
+		float temp_sens = sensitivity;
+		float temp_speed = speed;
+		ImGui::Begin("Change Some defaults");
+		ImGui::SliderFloat("Camera Sensitivity", &sensitivity, 0.0f, 100.0f);
+		ImGui::SliderFloat("Camera Speed", &speed, 0.0f, 50.0f);
+		
+		if (temp_sens == sensitivity) camera.SensitivitySetter(sensitivity);
+		if (temp_speed == speed) camera.SpeedSetter(speed);
+		
+		ImGui::End();
+
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

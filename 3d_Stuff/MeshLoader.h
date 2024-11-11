@@ -72,4 +72,11 @@ Mesh mesh_creator(float *vertices, GLsizei vertexCount, u_int *indices, u_int in
 
 
 	return Mesh(vao, vbo, ibo, meshShader, indexCount, transform);
+
+
+	//add the assimp  thingie here
+
+	/*
+		
+	*/
 }

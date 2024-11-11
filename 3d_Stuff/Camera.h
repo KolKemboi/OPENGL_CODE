@@ -60,6 +60,13 @@ public:
 
 	void MoveAround(Direction dir, float deltaTime)
 	{
+		float velocity = this->m_Speed * deltaTime;
+		if (dir == FORWARD) this->m_Pos += this->m_Front * velocity;
+		if (dir == BACKWARD) this->m_Pos -= this->m_Front * velocity;
+		if (dir == RIGHT) this->m_Pos += this->m_Right * velocity;
+		if (dir == LEFT) this->m_Pos -= this->m_Right * velocity;
+		if (dir == UP) this->m_Pos += this->m_Up * velocity;
+		if (dir == DOWN) this->m_Pos -= this->m_Up * velocity;
 	}
 
 	void LookAround(float deltaTime)
@@ -68,6 +75,19 @@ public:
 
 	void ZoomAround(float offset, float deltaTime)
 	{
+		float velocity = this->m_Speed * deltaTime;
+		if (offset > 0)this->m_Pos += this->m_Front * velocity;
+		if (offset < 0)this->m_Pos -= this->m_Front * velocity;
+	}
+
+	void SpeedSetter(float speed)
+	{
+		this->m_Speed = speed;
+	}
+	
+	void SensitivitySetter(float sensitivity)
+	{
+		this->m_Sensitivity = sensitivity;
 	}
 
 private:
