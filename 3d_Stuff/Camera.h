@@ -69,7 +69,7 @@ public:
 		if (dir == DOWN) this->m_Pos -= this->m_Up * velocity;
 	}
 
-	void LookAround(float deltaTime)
+	void LookAround(float xOffset, float yOffset, float deltaTime)
 	{
 	}
 

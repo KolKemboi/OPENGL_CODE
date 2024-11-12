@@ -139,7 +139,7 @@ public:
 		}
 	}
 
-	static void MouseScrollCallback(GLFWwindow* window, float xOffset, float yOffset)
+	static void MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 	{
 		MouseScrollEvent event(yOffset);
 		eventDispatcher->Dispatch(event);
@@ -220,10 +220,176 @@ EventDispatcher* Window::eventDispatcher = nullptr;
 class EventHandler
 {
 public:
-	EventHandler(Camera cam);
+	EventHandler(EventDispatcher& dispatcher, Camera cam, u_int width, u_int height) :
+		m_LastX(width / 2), m_LastY(height / 2), m_Camera(cam)
+	{
+		dispatcher.Subscribe(EventType::MouseMoved, [this](const Event& event)
+			{
+				const MouseEvent& mouseMoveEvent = static_cast<const MouseEvent&>(event);
+				OnMouseMove(mouseMoveEvent);
+			});
+
+		dispatcher.Subscribe(EventType::MouseButtonPressed, [this](const Event& event)
+			{
+				const MouseEvent& mousePressEvent = static_cast<const MouseEvent&>(event);
+				OnMouseButtonPress(mousePressEvent);
+			});
+		
+		dispatcher.Subscribe(EventType::MouseButtonReleased, [this](const Event& event)
+			{
+				const MouseEvent& mouseReleaseEvent = static_cast<const MouseEvent&>(event);
+				OnMouseButtonRelease(mouseReleaseEvent);
+			});
+		
+		dispatcher.Subscribe(EventType::KeyPressed, [this](const Event& event)
+			{
+				const KeyboardEvent& keyPressEvent = static_cast<const KeyboardEvent&>(event);
+				OnKeyPress(keyPressEvent);
+			});
+		
+		dispatcher.Subscribe(EventType::KeyRelaased, [this](const Event& event)
+			{
+				const KeyboardEvent& KeyReleaseEvent = static_cast<const KeyboardEvent&>(event);
+				OnKeyRelease(KeyReleaseEvent);
+			});
+
+		dispatcher.Subscribe(EventType::WindowResized, [this](const Event& event)
+			{
+				const WindowResizeEvent& windowResize = static_cast<const WindowResizeEvent&>(event);
+				OnWindowResize(windowResize);
+			});
+
+		dispatcher.Subscribe(EventType::MouseScrolled, [this](const Event& event)
+			{
+				const MouseScrollEvent& scrollEvent = static_cast<const MouseScrollEvent&>(event);
+				OnMouseScrollEvent(scrollEvent);
+			});
+
+
+	}
+
+	void changeLast(u_int width, u_int height)
+	{
+		m_LastX = static_cast<float>(width / 2);
+		m_LastY = static_cast<float>(height / 2);
+	}
+
+	float  UpdateDeltaTime()
+	{
+		float crntFrame = glfwGetTime();
+		m_DeltaTime = crntFrame - m_LastFrame;
+		m_LastFrame = crntFrame;
+		return m_DeltaTime;
+	}
+
+	std::unordered_map<std::string, float> GetMousePos() const
+	{
+		return m_MousePos;
+	}
+
+	bool IsLeftMousePressed() const
+	{
+		return m_IsLeftPressed;
+	}
+
+	bool IsRightMousePressed() const
+	{
+		return m_IsRightPressed;
+	}
+
+	bool IsMiddleMousePressed() const
+	{
+		return m_IsMiddlePressed;
+	}
+
+	std::array<bool, 1024> GetKeys() const
+	{
+		return keyStates;
+	}
+	std::unordered_map<std::string, int> GetWindowSize() const
+	{
+		return m_WindowSize;
+	}
+
+
 
 private:
-	Camera& camera;
-	float lastX, lastY;
+	Camera& m_Camera;
+	float m_LastX, m_LastY;
+	bool m_IsLeftPressed = false, m_IsRightPressed = false, m_IsMiddlePressed = false;
+	std::array<bool, 1024> keyStates;
+	bool m_FirstClick = true;
+	float m_LastFrame = 0.0f, m_DeltaTime = 0.0f;
+	std::unordered_map<std::string, int> m_WindowSize;
+	std::unordered_map < std::string, float> m_MousePos;
+
+
+private:
+	void OnMouseMove(const MouseEvent& event)
+	{
+		if (m_FirstClick)
+		{
+			m_LastX = event.x;
+			m_LastY = event.y;
+			m_FirstClick = false;
+		}
+
+		float xOffset = event.x - m_LastX;
+		float yOffset = event.y - m_LastY;
+
+		m_LastX = event.x;
+		m_LastY = event.y;
+
+		m_MousePos["mouseX"] = event.x;
+		m_MousePos["mouseY"] = event.y;
+
+
+		if (m_IsMiddlePressed)
+			m_Camera.LookAround(xOffset, yOffset, m_DeltaTime);
+
+	}
+	void OnMouseButtonPress(const MouseEvent& event)
+	{
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT)
+			m_IsLeftPressed = true;
+		if (event.button == GLFW_MOUSE_BUTTON_RIGHT)
+			m_IsRightPressed = true;
+		if (event.button == GLFW_MOUSE_BUTTON_MIDDLE)
+			m_IsMiddlePressed = true;
+	}
+
+	void OnMouseButtonRelease(const MouseEvent& event)
+	{
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT)
+			m_IsLeftPressed = false;
+		if (event.button == GLFW_MOUSE_BUTTON_RIGHT)
+			m_IsRightPressed = false;
+		if (event.button == GLFW_MOUSE_BUTTON_MIDDLE)
+		{
+			m_IsMiddlePressed = false; 
+			m_FirstClick = false;
+		}
+
+	}
+
+	void OnMouseScrollEvent(const MouseScrollEvent& event)
+	{
+		m_Camera.ZoomAround(event.offset, m_DeltaTime);
+	}
+
+	void OnKeyPress(const KeyboardEvent& event)
+	{
+		keyStates[event.key] = true;
+	}
+
+	void OnKeyRelease(const KeyboardEvent& event)
+	{
+		keyStates[event.key] = false;
+	}
+
+	void OnWindowResize(const WindowResizeEvent& event)
+	{
+		m_WindowSize = event.size;
+	}
 
 };

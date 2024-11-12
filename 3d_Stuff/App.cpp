@@ -11,6 +11,8 @@
 #include "MeshLoader.h"
 #include "RenderSystem.h"
 #include "Camera.h"
+#include "EventsHandler.h"
+
 
 typedef unsigned int u_int;
 
@@ -84,13 +86,12 @@ u_int idxs[] =
 };
 
 
-void closeWindow(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
-}
 
 RenderSystem renderer;
 Camera camera;
+EventDispatcher dispatcher;
+EventHandler eventHandler(dispatcher, camera, width, height);
+
 
 std::unordered_map<std::string, Mesh> meshes;
 
@@ -121,6 +122,18 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+	Mouse::SetEventDispatcher(&dispatcher);
+	Keyboard::SetEventDispatcher(&dispatcher);
+	Window::SetEventDispatcher(&dispatcher);
+
+
+	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
+	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
+	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
+
+
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
 		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
 			, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(45.0f, 0.0f, 0.0f));
@@ -132,27 +145,39 @@ int main()
 	meshes["mesh_1"] = myMesh;
 	meshes["mesh_2"] = myMesh2;
 
-	float sensitivity = 20.0f, speed = 10.0f;
+	float sensitivity = 20.0f, speed = 10.0f, deltaTime = 0.0f;
 
 	while (!(glfwWindowShouldClose(window)))
 	{
-		closeWindow(window);
-		/*
-		event callbacks, 
-			this allows me to edit the window width and height, 
-			then when it renders, 
-			it used the new width and height;
-		then render to a frame buffer;
-		then render to an ImGui window;
-		*/
-		//meshes["mesh_1"].m_Transform.m_Scale = glm::vec3(0.2);//this is how I scale it up and down
-	
+
+		deltaTime = eventHandler.UpdateDeltaTime();
+
+		if (eventHandler.IsLeftMousePressed())
+			std::unordered_map<std::string, float> MouseLeftClickPos = eventHandler.GetMousePos();
+
+		if (eventHandler.IsRightMousePressed())
+			std::unordered_map<std::string, float> MouseRightClickPos = eventHandler.GetMousePos();
+
+		if (eventHandler.IsMiddleMousePressed())
+			std::unordered_map<std::string, float> MouseMiddleClickPos = eventHandler.GetMousePos();
+
+		std::unordered_map<std::string, float> MouseCursorPos = eventHandler.GetMousePos();
+		std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
+
+		
+		eventHandler.changeLast(windowSize["width"], windowSize["height"]);
+
+		std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
+
+		std::array<bool, 1024> keys = eventHandler.GetKeys();
+
+		if (keys[GLFW_KEY_ESCAPE])
+			glfwSetWindowShouldClose(window, true);
 
 		renderer.initScene();
 
 		for (auto& [key, mesh] : meshes)
 		{
-			std::cout << key << std::endl;
 			renderer.Render(mesh, camera, width, height);
 		}
 

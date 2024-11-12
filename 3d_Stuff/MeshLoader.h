@@ -82,70 +82,70 @@ Mesh mesh_creator(float *vertices, GLsizei vertexCount, u_int *indices, u_int in
 	*/
 }
 
-
-
-struct BaseObject
-{
-	u_int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
-	Transform m_Transform;
-	u_int m_indexCount;
-
-	BaseObject()
-		: m_VertexArray(0), m_VertexBuffer(0), m_IndexBuffer(0), m_Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f)), m_indexCount(0)
-	{
-	}
-
-	BaseObject(u_int vao, u_int vbo, u_int ibo, ModelShader shader, u_int indexCount, Transform transform)
-		: m_VertexArray(vao), m_VertexBuffer(vbo), m_IndexBuffer(ibo), m_Transform(transform), m_indexCount(indexCount)
-	{
-
-	}
-};
-
-struct Meshi : public BaseObject
-{
-	ModelShader m_Shader;
-	Meshi() : m_Shader()
-	{
-		this->m_VertexArray = 0;
-		this->m_VertexBuffer = 0;
-		this->m_IndexBuffer = 0;
-		this->m_Transform = Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
-		this->m_indexCount = 0;
-	}
-
-	Meshi(u_int vao, u_int vbo, u_int ibo, u_int indexCount, Transform transform, ModelShader shader)
-		: m_Shader(shader)
-	{
-		this->m_VertexArray = vao;
-		this->m_VertexBuffer = vbo;
-		this->m_IndexBuffer = ibo;
-		this->m_Transform = Transform(transform);
-		this->m_indexCount = indexCount;
-	}
-
-};
-
-struct Light : public BaseObject
-{
-	LightShader m_Shader;
-	Light() : m_Shader()
-	{
-		this->m_VertexArray = 0;
-		this->m_VertexBuffer = 0;
-		this->m_IndexBuffer = 0;
-		this->m_Transform = Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
-		this->m_indexCount = 0;
-	}
-
-	Light(u_int vao, u_int vbo, u_int ibo, u_int indexCount, Transform transform, LightShader shader)
-		: m_Shader(shader)
-	{
-		this->m_VertexArray = vao;
-		this->m_VertexBuffer = vbo;
-		this->m_IndexBuffer = ibo;
-		this->m_Transform = Transform(transform);
-		this->m_indexCount = indexCount;
-	}
-
-};
+//
+//
+//struct BaseObject
+//{
+//	u_int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+//	Transform m_Transform;
+//	u_int m_indexCount;
+//
+//	BaseObject()
+//		: m_VertexArray(0), m_VertexBuffer(0), m_IndexBuffer(0), m_Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f)), m_indexCount(0)
+//	{
+//	}
+//
+//	BaseObject(u_int vao, u_int vbo, u_int ibo, ModelShader shader, u_int indexCount, Transform transform)
+//		: m_VertexArray(vao), m_VertexBuffer(vbo), m_IndexBuffer(ibo), m_Transform(transform), m_indexCount(indexCount)
+//	{
+//
+//	}
+//};
+//
+//struct Meshi : public BaseObject
+//{
+//	ModelShader m_Shader;
+//	Meshi() : m_Shader()
+//	{
+//		this->m_VertexArray = 0;
+//		this->m_VertexBuffer = 0;
+//		this->m_IndexBuffer = 0;
+//		this->m_Transform = Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+//		this->m_indexCount = 0;
+//	}
+//
+//	Meshi(u_int vao, u_int vbo, u_int ibo, u_int indexCount, Transform transform, ModelShader shader)
+//		: m_Shader(shader)
+//	{
+//		this->m_VertexArray = vao;
+//		this->m_VertexBuffer = vbo;
+//		this->m_IndexBuffer = ibo;
+//		this->m_Transform = Transform(transform);
+//		this->m_indexCount = indexCount;
+//	}
+//
+//};
+//
+//struct Light : public BaseObject
+//{
+//	LightShader m_Shader;
+//	Light() : m_Shader()
+//	{
+//		this->m_VertexArray = 0;
+//		this->m_VertexBuffer = 0;
+//		this->m_IndexBuffer = 0;
+//		this->m_Transform = Transform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+//		this->m_indexCount = 0;
+//	}
+//
+//	Light(u_int vao, u_int vbo, u_int ibo, u_int indexCount, Transform transform, LightShader shader)
+//		: m_Shader(shader)
+//	{
+//		this->m_VertexArray = vao;
+//		this->m_VertexBuffer = vbo;
+//		this->m_IndexBuffer = ibo;
+//		this->m_Transform = Transform(transform);
+//		this->m_indexCount = indexCount;
+//	}
+//
+//};
