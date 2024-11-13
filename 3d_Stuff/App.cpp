@@ -95,6 +95,9 @@ EventHandler eventHandler(dispatcher, camera, width, height);
 
 std::unordered_map<std::string, Mesh> meshes;
 
+u_int frameBuffer, textureColorBuffer, renderBuffer;
+
+void setupFrameBuffer(u_int width, u_int height);
 
 int main()
 {
@@ -118,20 +121,21 @@ int main()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	Mouse::SetEventDispatcher(&dispatcher);
-	Keyboard::SetEventDispatcher(&dispatcher);
-	Window::SetEventDispatcher(&dispatcher);
+	//Mouse::SetEventDispatcher(&dispatcher);
+	//Keyboard::SetEventDispatcher(&dispatcher);
+	//Window::SetEventDispatcher(&dispatcher);
 
 
-	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
-	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
-	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
-	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
+	//glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+	//glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+	//glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
+	//glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
+	//glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
 
 
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
@@ -150,59 +154,91 @@ int main()
 	while (!(glfwWindowShouldClose(window)))
 	{
 
-		deltaTime = eventHandler.UpdateDeltaTime();
+		//deltaTime = eventHandler.UpdateDeltaTime();
 
-		if (eventHandler.IsLeftMousePressed())
-			std::unordered_map<std::string, float> MouseLeftClickPos = eventHandler.GetMousePos();
+		//if (eventHandler.IsLeftMousePressed())
+		//	std::unordered_map<std::string, float> MouseLeftClickPos = eventHandler.GetMousePos();
 
-		if (eventHandler.IsRightMousePressed())
-			std::unordered_map<std::string, float> MouseRightClickPos = eventHandler.GetMousePos();
+		//if (eventHandler.IsRightMousePressed())
+		//	std::unordered_map<std::string, float> MouseRightClickPos = eventHandler.GetMousePos();
 
-		if (eventHandler.IsMiddleMousePressed())
-			std::unordered_map<std::string, float> MouseMiddleClickPos = eventHandler.GetMousePos();
+		//if (eventHandler.IsMiddleMousePressed())
+		//	std::unordered_map<std::string, float> MouseMiddleClickPos = eventHandler.GetMousePos();
 
-		std::unordered_map<std::string, float> MouseCursorPos = eventHandler.GetMousePos();
-		std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
+		//std::unordered_map<std::string, float> MouseCursorPos = eventHandler.GetMousePos();
+		//std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
 
-		
-		eventHandler.changeLast(windowSize["width"], windowSize["height"]);
+		//
+		//eventHandler.changeLast(windowSize["width"], windowSize["height"]);
 
-		std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
+		//std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
 
-		std::array<bool, 1024> keys = eventHandler.GetKeys();
+		//std::array<bool, 1024> keys = eventHandler.GetKeys();
 
-		if (keys[GLFW_KEY_ESCAPE])
-			glfwSetWindowShouldClose(window, true);
+		//if (keys[GLFW_KEY_ESCAPE])
+		//	glfwSetWindowShouldClose(window, true);
 
+		ImGui_ImplGlfw_NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+		ImGui::Begin("DockSpace Window", nullptr, ImGuiWindowFlags_NoTitleBar
+			| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
+			| ImGuiWindowFlags_NoNavFocus);
+
+		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+
+		ImGui::End();
+
+
+		ImGui::Begin("Scene");
+		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+		u_int viewWidth = static_cast<u_int>(viewportSize.x);
+		u_int viewHeight = static_cast<u_int>(viewportSize.y);
+
+		if (viewHeight != height || viewWidth != width)
+		{
+			width = viewWidth;
+			height = viewHeight;
+			setupFrameBuffer(width, height);
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+		renderer.clearScene(window);
 		renderer.initScene();
 
 		for (auto& [key, mesh] : meshes)
 		{
 			renderer.Render(mesh, camera, width, height);
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		ImGui_ImplGlfw_NewFrame();
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui::NewFrame();
+		
+
+		ImGui::Image((void*)(intptr_t)textureColorBuffer, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
 
 		ImGui::Begin("Debug Window");
 		ImGui::Text("This Is A Debug Window");
 
-		// Scale controls for mesh_1 and mesh_2
+		ImGui::Text("This Is Model changing");
+
 		ImGui::SliderFloat3("Model_1 Scale", &meshes["mesh_1"].m_Transform.m_Scale[0], 0.1f, 5.0f);
 		ImGui::SliderFloat3("Model_2 Scale", &meshes["mesh_2"].m_Transform.m_Scale[0], 0.1f, 5.0f);
 
-		// Location controls for mesh_1 and mesh_2
 		ImGui::SliderFloat3("Model_1 Location", &meshes["mesh_1"].m_Transform.m_Position[0], -5.0f, 5.0f);
 		ImGui::SliderFloat3("Model_2 Location", &meshes["mesh_2"].m_Transform.m_Position[0], -5.0f, 5.0f);
 
-		ImGui::End();
 
-
+		ImGui::Text("This is changing some other things");
 		float temp_sens = sensitivity;
 		float temp_speed = speed;
-		ImGui::Begin("Change Some defaults");
+
 		ImGui::SliderFloat("Camera Sensitivity", &sensitivity, 0.0f, 100.0f);
 		ImGui::SliderFloat("Camera Speed", &speed, 0.0f, 50.0f);
 		
@@ -214,7 +250,6 @@ int main()
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		renderer.clearScene(window);
 
 	}
 
@@ -225,5 +260,39 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
+
+}
+
+void setupFrameBuffer(u_int width, u_int height)
+{
+	if (frameBuffer) {
+		glDeleteFramebuffers(1, &frameBuffer);
+		glDeleteTextures(1, &textureColorBuffer);
+		glDeleteRenderbuffers(1, &renderBuffer);
+	}
+
+	glGenFramebuffers(1, &frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+	// Create color attachment texture
+	glGenTextures(1, &textureColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+	// Create depth and stencil renderbuffer
+	glGenRenderbuffers(1, &renderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER NOT COMPLETE" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
