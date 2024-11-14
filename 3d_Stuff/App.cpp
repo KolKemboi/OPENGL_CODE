@@ -98,6 +98,12 @@ std::unordered_map<std::string, Mesh> meshes;
 u_int frameBuffer, textureColorBuffer, renderBuffer;
 
 void setupFrameBuffer(u_int width, u_int height);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+void EmptyCallback(GLFWwindow* window, double xpos, double ypos) { }
+void EmptyButtonCallback(GLFWwindow* window, int button, int action, int mods) { }
+void EmptyScrollCallback(GLFWwindow* window, double xoffset, double yoffset) { }
 
 int main()
 {
@@ -126,16 +132,14 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	//Mouse::SetEventDispatcher(&dispatcher);
-	//Keyboard::SetEventDispatcher(&dispatcher);
-	//Window::SetEventDispatcher(&dispatcher);
+	Mouse::SetEventDispatcher(&dispatcher);
+	Keyboard::SetEventDispatcher(&dispatcher);
+	Window::SetEventDispatcher(&dispatcher);
 
 
-	//glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
-	//glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	//glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
-	//glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
-	//glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
+	
+	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
+	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
 
 
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
@@ -154,29 +158,29 @@ int main()
 	while (!(glfwWindowShouldClose(window)))
 	{
 
-		//deltaTime = eventHandler.UpdateDeltaTime();
+		deltaTime = eventHandler.UpdateDeltaTime();
 
-		//if (eventHandler.IsLeftMousePressed())
-		//	std::unordered_map<std::string, float> MouseLeftClickPos = eventHandler.GetMousePos();
+		if (eventHandler.IsLeftMousePressed())
+			std::unordered_map<std::string, float> MouseLeftClickPos = eventHandler.GetMousePos();
 
-		//if (eventHandler.IsRightMousePressed())
-		//	std::unordered_map<std::string, float> MouseRightClickPos = eventHandler.GetMousePos();
+		if (eventHandler.IsRightMousePressed())
+			std::unordered_map<std::string, float> MouseRightClickPos = eventHandler.GetMousePos();
 
-		//if (eventHandler.IsMiddleMousePressed())
-		//	std::unordered_map<std::string, float> MouseMiddleClickPos = eventHandler.GetMousePos();
+		if (eventHandler.IsMiddleMousePressed())
+			std::unordered_map<std::string, float> MouseMiddleClickPos = eventHandler.GetMousePos();
 
-		//std::unordered_map<std::string, float> MouseCursorPos = eventHandler.GetMousePos();
-		//std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
+		std::unordered_map<std::string, float> MouseCursorPos = eventHandler.GetMousePos();
+		std::unordered_map<std::string, int> windowSize = eventHandler.GetWindowSize();
 
-		//
-		//eventHandler.changeLast(windowSize["width"], windowSize["height"]);
+		
+		eventHandler.changeLast(windowSize["width"], windowSize["height"]);
 
-		//std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
+		std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
 
-		//std::array<bool, 1024> keys = eventHandler.GetKeys();
+		std::array<bool, 1024> keys = eventHandler.GetKeys();
 
-		//if (keys[GLFW_KEY_ESCAPE])
-		//	glfwSetWindowShouldClose(window, true);
+		if (keys[GLFW_KEY_ESCAPE])
+			glfwSetWindowShouldClose(window, true);
 
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
@@ -200,6 +204,22 @@ int main()
 		u_int viewWidth = static_cast<u_int>(viewportSize.x);
 		u_int viewHeight = static_cast<u_int>(viewportSize.y);
 
+		ImVec2 mousePos = ImGui::GetMousePos();  // Get the current mouse position
+		ImVec2 windowPos = ImGui::GetWindowPos();  // Get the top-left position of the window
+
+		if (mousePos.x >= windowPos.x && mousePos.x <= windowPos.x + viewWidth &&
+			mousePos.y >= windowPos.y && mousePos.y <= windowPos.y + viewHeight) 
+		{
+			std::cout << "In Window" << std::endl;
+			//glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+			//glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+			//glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
+		}
+		else {
+    // Disable scroll callback
+		}
+
+
 		if (viewHeight != height || viewWidth != width)
 		{
 			width = viewWidth;
@@ -221,6 +241,8 @@ int main()
 		
 
 		ImGui::Image((void*)(intptr_t)textureColorBuffer, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+		
+
 		ImGui::End();
 
 		ImGui::Begin("Debug Window");
@@ -295,4 +317,16 @@ void setupFrameBuffer(u_int width, u_int height)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (!ImGui::GetIO().WantCaptureMouse) {
+		Mouse::MouseButtonCallback(window, button, action, mods);
+	}
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (!ImGui::GetIO().WantCaptureKeyboard) {
+		Keyboard::KeyboardCallback(window, key, scancode, action, mods);
+	}
 }
