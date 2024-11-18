@@ -114,7 +114,7 @@ public:
 		eventDispatcher = dispatcher;
 	}
 
-	static void MousePositionCallback(GLFWwindow* widow, double x, double y)
+	static void MousePositionCallback(GLFWwindow* window, double x, double y)
 	{
 		xPos = x;
 		yPos = y;
@@ -141,12 +141,15 @@ public:
 				eventDispatcher->Dispatch(event);
 			}
 		}
+		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 	}
 
 	static void MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 	{
 		MouseScrollEvent event(yOffset);
 		eventDispatcher->Dispatch(event);
+
+		ImGui_ImplGlfw_ScrollCallback(window, xOffset, yOffset);
 	}
 
 private:

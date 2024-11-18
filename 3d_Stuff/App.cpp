@@ -97,14 +97,9 @@ std::unordered_map<std::string, Mesh> meshes;
 
 u_int frameBuffer, textureColorBuffer, renderBuffer;
 
+bool isMouseInsideSceneWindow = false;
+
 void setupFrameBuffer(u_int width, u_int height);
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-void EmptyCallback(GLFWwindow* window, double xpos, double ypos) { }
-void EmptyButtonCallback(GLFWwindow* window, int button, int action, int mods) { }
-void EmptyScrollCallback(GLFWwindow* window, double xoffset, double yoffset) { }
-
 int main()
 {
 	glfwInit();
@@ -113,6 +108,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(width, height, "3d Viewport", nullptr, nullptr);
+
 	if (window == NULL)
 	{
 		std::cout << "ERROR IN WINDOW CREATION" << std::endl;
@@ -128,6 +124,7 @@ int main()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
@@ -140,7 +137,9 @@ int main()
 	
 	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
 	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
-
+	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
 		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
@@ -175,7 +174,7 @@ int main()
 		
 		eventHandler.changeLast(windowSize["width"], windowSize["height"]);
 
-		std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
+		//std::cout << MouseCursorPos["mouseX"] << "\n" << MouseCursorPos["mouseY"] << std::endl;
 
 		std::array<bool, 1024> keys = eventHandler.GetKeys();
 
@@ -207,16 +206,14 @@ int main()
 		ImVec2 mousePos = ImGui::GetMousePos();  // Get the current mouse position
 		ImVec2 windowPos = ImGui::GetWindowPos();  // Get the top-left position of the window
 
-		if (mousePos.x >= windowPos.x && mousePos.x <= windowPos.x + viewWidth &&
-			mousePos.y >= windowPos.y && mousePos.y <= windowPos.y + viewHeight) 
+		if (MouseCursorPos["mouseX"] >= windowPos.x && MouseCursorPos["mouseX"] <= windowPos.x + viewWidth &&
+			MouseCursorPos["mouseY"] >= windowPos.y && MouseCursorPos["mouseY"] <= windowPos.y + viewHeight)
 		{
 			std::cout << "In Window" << std::endl;
-			//glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
-			//glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-			//glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 		}
-		else {
-    // Disable scroll callback
+		else 
+		{
+			std::cout << "Not in Window" << std::endl;
 		}
 
 
