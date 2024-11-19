@@ -126,6 +126,7 @@ public:
 
 	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
+		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 		if(button >= 0 && button < 3)
 		{
 			if (action == GLFW_PRESS)
@@ -133,15 +134,16 @@ public:
 				buttons[button] = true;
 				MouseEvent event(EventType::MouseButtonPressed, xPos, yPos, button);
 				eventDispatcher->Dispatch(event);
+
 			}
 			if (action == GLFW_RELEASE)
 			{
 				buttons[button] = false;
 				MouseEvent event(EventType::MouseButtonReleased, xPos, yPos, button);
 				eventDispatcher->Dispatch(event);
+
 			}
 		}
-		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 	}
 
 	static void MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
@@ -233,12 +235,14 @@ public:
 		dispatcher.Subscribe(EventType::MouseMoved, [this](const Event& event)
 			{
 				const MouseEvent& mouseMoveEvent = static_cast<const MouseEvent&>(event);
+				
 				OnMouseMove(mouseMoveEvent);
 			});
 
 		dispatcher.Subscribe(EventType::MouseButtonPressed, [this](const Event& event)
 			{
 				const MouseEvent& mousePressEvent = static_cast<const MouseEvent&>(event);
+				
 				OnMouseButtonPress(mousePressEvent);
 			});
 		
