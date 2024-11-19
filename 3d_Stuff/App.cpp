@@ -132,14 +132,14 @@ int main()
 	Mouse::SetEventDispatcher(&dispatcher);
 	Keyboard::SetEventDispatcher(&dispatcher);
 	Window::SetEventDispatcher(&dispatcher);
+	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 
 
 	
 	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
 	glfwSetFramebufferSizeCallback(window, Window::FrameBufferSizeCallback);
-	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
-	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 
 	Mesh myMesh = mesh_creator(verts, sizeof(verts), idxs, 
 		static_cast<u_int>(sizeof(idxs) / sizeof(u_int))
@@ -209,11 +209,17 @@ int main()
 		if (MouseCursorPos["mouseX"] >= windowPos.x && MouseCursorPos["mouseX"] <= windowPos.x + viewWidth &&
 			MouseCursorPos["mouseY"] >= windowPos.y && MouseCursorPos["mouseY"] <= windowPos.y + viewHeight)
 		{
+
 			std::cout << "In Window" << std::endl;
+			glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+			glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+			glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 		}
 		else 
 		{
+
 			std::cout << "Not in Window" << std::endl;
+			glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
 		}
 
 
