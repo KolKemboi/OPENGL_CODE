@@ -152,6 +152,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="EventsHandler.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\light\light.frag" />

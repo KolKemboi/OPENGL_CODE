@@ -126,7 +126,11 @@ public:
 
 	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
-		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		if (ImGui::GetIO().WantCaptureMouse)
+		{
+			ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		}
+
 		if(button >= 0 && button < 3)
 		{
 			if (action == GLFW_PRESS)
@@ -175,6 +179,11 @@ public:
 
 	static void KeyboardCallback(GLFWwindow* window, int key, int scanCode, int action, int mods)
 	{
+		if (ImGui::GetIO().WantCaptureKeyboard)
+		{
+			ImGui_ImplGlfw_KeyCallback(window, key, scanCode, action, mods);
+		}
+
 		if(key >= 0 && key < 1024)
 		{
 			if (action == GLFW_PRESS)

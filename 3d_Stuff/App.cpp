@@ -132,9 +132,9 @@ int main()
 	Mouse::SetEventDispatcher(&dispatcher);
 	Keyboard::SetEventDispatcher(&dispatcher);
 	Window::SetEventDispatcher(&dispatcher);
-	/*glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
+	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
 	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);*/
+	glfwSetScrollCallback(window, Mouse::MouseScrollCallback);
 
 
 	
