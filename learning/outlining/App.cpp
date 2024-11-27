@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <unordered_map>
+#include "MeshLoader.h"
 
 typedef unsigned int u_int;
 
@@ -75,6 +76,8 @@ u_int idxs[] =
 	20, 21, 22,
 	22, 23, 20,
 };
+
+Model model;
 
 int main()
 {
