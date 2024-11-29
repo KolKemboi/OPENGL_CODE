@@ -18,18 +18,14 @@ private:
 class ModelShader : public Shader
 {
 public:
-	ModelShader()
-	{
-		Shader shader("/shader", "/Shader");
-	}
+	ModelShader():Shader("/shader", "/Shader")
+	{}
 };
 
 class LightShader : public Shader
 {
 public:
-	LightShader()
-	{
-		Shader shader("/shader", "/Shader");
-	}
+	LightShader() : Shader("/shader", "/Shader")
+	{}
 
 };

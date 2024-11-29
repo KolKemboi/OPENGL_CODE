@@ -77,7 +77,6 @@ u_int idxs[] =
 	22, 23, 20,
 };
 
-Model model;
 
 int main()
 {

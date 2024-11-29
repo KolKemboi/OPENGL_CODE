@@ -15,42 +15,34 @@ struct Transform
 {
 	glm::vec3 m_Position, m_Scale, m_Rotation;
 
-	Transform(glm::vec3 pos, glm::vec3 scale, glm::vec3 rot) : m_Position(pos), m_Scale(scale), m_Rotation(rot)
+	Transform(glm::vec3 pos = glm::vec3(0.0), glm::vec3 scale = glm::vec3(1.0), glm::vec3 rot = glm::vec3(0.0)) 
+		: m_Position(pos), m_Scale(scale), m_Rotation(rot)
 	{
 	}
 
 };
 
-struct BaseMesh
+struct Mesh
 {
 	u_int m_Vao, m_Vbo, m_Ibo;
+	Transform m_Transform;
+	ModelShader m_ModelShader;
+	LightShader m_LightShader;
 
-
-	BaseMesh() : m_Vao(0), m_Vbo(0), m_Ibo(0)
+	Mesh() : m_Vao(0), m_Vbo(0), m_Ibo(0), 
+		m_Transform(Transform(glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0))), m_ModelShader(), m_LightShader()
 	{
 		
-	}
+	};
 
-	void createMesh(/*Requires vertices, indices and their respective sizes*/)
+	Mesh(u_int vao, u_int vbo, u_int ibo, Transform transform) : m_Vao(vao), m_Vbo(vbo), m_Ibo(ibo),
+		m_Transform(transform)
 	{
-		//create everything for the class
-		glGenVertexArrays(1, &m_Vao);
-		glBindVertexArray(m_Vao);
 
 	}
-
 };
 
-struct Model : public BaseMesh
+Mesh createMesh()
 {
-	ModelShader m_Shader;
-};
-struct Light : public BaseMesh
-{
-	LightShader m_Shader;
-};
 
-
-
-
-
+}
