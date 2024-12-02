@@ -3,29 +3,12 @@
 class Shader
 {
 public:
-	Shader(const char* vertexFile, const char* fragFile)
+	Shader()
 	{
 
 	}
 	~Shader();
 
 private:
-
-};
-
-
-
-class ModelShader : public Shader
-{
-public:
-	ModelShader():Shader("/shader", "/Shader")
-	{}
-};
-
-class LightShader : public Shader
-{
-public:
-	LightShader() : Shader("/shader", "/Shader")
-	{}
 
 };
