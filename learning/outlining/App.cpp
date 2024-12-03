@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 #include "MeshLoader.h"
+#include "Renderer.h"
+
 
 typedef unsigned int u_int;
 
@@ -77,6 +79,7 @@ u_int idxs[] =
 	22, 23, 20,
 };
 
+void closeWindow(GLFWwindow* window);
 
 int main()
 {
@@ -98,9 +101,21 @@ int main()
 	gladLoadGL();
 	glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 
+	Renderer renderer;
+
+	Mesh cube = createMesh(verts, static_cast<GLsizei>(sizeof(verts) / sizeof(float)),
+		idxs, static_cast<u_int>(sizeof(idxs) / sizeof(u_int)));
+	
+
+
 	while (!(glfwWindowShouldClose(window)))
 	{
+		closeWindow(window);
+		renderer.InitScene();
 
+		std::cout << cube.m_IndexCount << std::endl;
+		renderer.Render(cube);
+		renderer.ClearScene(window);
 	
 	}
 
@@ -108,4 +123,9 @@ int main()
 	glfwTerminate();
 
 
+}
+
+void closeWindow(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 }
