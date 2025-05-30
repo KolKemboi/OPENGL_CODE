@@ -1,53 +1,65 @@
 #include "engine.h"
-
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-#include <utility>
-
 #include "model.h"
+#include <GLFW/glfw3.h>
+#include <cstdlib>
+#include <memory>
 
-Engine::Engine() : m_Width(640), m_Height(480) {
+Engine::Engine() : m_Height(480), m_Width(640) {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(int hint, int value)
+
   this->m_Window = glfwCreateWindow(this->m_Width, this->m_Height,
-                                    "Default Window", nullptr, nullptr);
+                                    "basic window", nullptr, nullptr);
+
   if (!this->m_Window) {
-    std::cout << "WINDOW_ERROR" << std::endl;
+    std::cerr << "ERROR::WINDOW_FAILED::EXIT CODE 1" << std::endl;
     glfwTerminate();
+    std::exit(EXIT_FAILURE);
   }
   glfwMakeContextCurrent(this->m_Window);
-  gladLoadGL();
-  glViewport(0, 0, this->m_Width, this->m_Height);
-}
 
+  if (!gladLoadGL()) {
+    std::cerr << "FAILED:: GLAD" << std::endl;
+    glfwTerminate();
+    return;
+  }
+  glViewport(0, 0, static_cast<GLsizei>(this->m_Width),
+             static_cast<GLsizei>(this->m_Height));
+   
+  this->m_Model = std::make_shared<Model>();
+  
+  this->m_Model->makeModel();
+  
+} 
+
+// NOTE: destroy engine
 Engine::~Engine() {
   glfwDestroyWindow(this->m_Window);
   this->m_Window = nullptr;
   glfwTerminate();
 }
 
+
+// NOTE: this is the runn engine
 void Engine::runEngine() {
   while (!glfwWindowShouldClose(this->m_Window)) {
+    glClearColor(0.3, 0.1, 0.2, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
-
-    glClearColor(0.3, 0.1, 0.2, 1.0);
     closeWindow(this->m_Window);
-    Model model;
-    model.makeModel();
-    model.renderModel();
-    glfwPollEvents();
-    
+
+    this->m_Model->renderModel();
+
     glfwSwapBuffers(this->m_Window);
+    glfwPollEvents();
   }
 }
 
+// NOTE: close window
 void Engine::closeWindow(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
+  }
 }
