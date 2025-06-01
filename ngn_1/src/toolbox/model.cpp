@@ -69,7 +69,7 @@ void Model::makeModel() {
   glBindVertexArray(0);
 
   this->m_Shader = std::make_shared<Shader>();
-  model = glm::rotate(model, glm::radians(40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  model = glm::rotate(model, glm::radians(40), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void Model::renderModel() {

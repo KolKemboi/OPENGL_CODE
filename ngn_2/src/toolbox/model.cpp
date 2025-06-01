@@ -1,8 +1,8 @@
 #include "model.h"
+#include "engine.h"
 #include <iostream>
 
-Model::Model(){
-   
+Model::Model() {
 
   this->verts = {
       // Front face (position XYZ + color RGB)
@@ -34,39 +34,48 @@ Model::Model(){
 
                 // Bottom face
                 4, 5, 1, 1, 0, 4};
-  
+
   glCreateVertexArrays(1, &this->m_vao);
   glBindVertexArray(this->m_vao);
 
   glCreateBuffers(1, &this->m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, this->m_vbo);
-  glBufferData(GL_ARRAY_BUFFER, this->verts.size()*sizeof(unsigned int), this->verts.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, this->verts.size() * sizeof(float),
+               this->verts.data(), GL_STATIC_DRAW);
 
   glCreateBuffers(1, &this->m_ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->idxs.size()*sizeof(float), this->idxs.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               this->idxs.size() * sizeof(unsigned int), this->idxs.data(),
+               GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
 
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
 
   glBindVertexArray(0);
+
+  this->m_Shader = std::make_unique<Shader>();
 }
 
-
-void Model::renderModel(){
+void Model::renderModel() {
+  this->m_Shader->useShader();
   glBindVertexArray(this->m_vao);
+  glDrawElements(GL_TRIANGLES, this->idxs.size(), GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
   std::cout << this->idxs.size() << std::endl;
 }
 
-void Model::destroyModel(){
+void Model::destroyModel() {
+  this->m_Shader->destroyShader();
+  this->m_Shader = 0;
   glDeleteBuffers(1, &this->m_vbo);
   this->m_vbo = 0;
   glDeleteBuffers(1, &this->m_ibo);
   this->m_ibo = 0;
   glDeleteVertexArrays(1, &this->m_vao);
   this->m_vao = 0;
-
 }
