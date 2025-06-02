@@ -29,6 +29,8 @@ target_include_directories(imgui PUBLIC ${IMGUI_DIR})
 add_executable(${PROJ_NAME}
   src/App.cpp 
   src/glad.c
+  src/toolbox/engine.cpp
+  src/toolbox/model.cpp
 )
 
 target_include_directories(${PROJ_NAME} PUBLIC ${GLAD_DIR})
