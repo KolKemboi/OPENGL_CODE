@@ -31,6 +31,7 @@ add_executable(${PROJ_NAME}
   src/toolbox/engine.cpp 
   src/toolbox/model.cpp 
   src/toolbox/shader.cpp 
+  src/toolbox/camera.cpp 
   src/glad.c
 )
 

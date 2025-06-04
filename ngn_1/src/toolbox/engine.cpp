@@ -27,7 +27,7 @@ Engine::Engine() : m_Height(480), m_Width(640) {
   }
   glViewport(0, 0, static_cast<GLsizei>(this->m_Width),
              static_cast<GLsizei>(this->m_Height));
-   
+  glEnable(GL_DEPTH_BUFFER_BIT); 
   this->m_Model = std::make_shared<Model>();
   
   this->m_Model->makeModel();
@@ -46,7 +46,7 @@ Engine::~Engine() {
 void Engine::runEngine() {
   while (!glfwWindowShouldClose(this->m_Window)) {
     glClearColor(0.3, 0.1, 0.2, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     closeWindow(this->m_Window);
 

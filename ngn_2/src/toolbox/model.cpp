@@ -1,5 +1,11 @@
 #include "model.h"
+#include"camera.h"
+#include "engine.h"
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/trigonometric.hpp>
 #include <iostream>
+#include <memory>
 
 Model::Model() {
 
@@ -57,10 +63,18 @@ Model::Model() {
 
   glBindVertexArray(0);
 
-  this->m_Shader = std::make_unique<Shader>();
+  this->m_Shader = std::make_shared<Shader>();
+  this->m_Camera = std::make_shared<Camera>(this->m_Shader);
+
+  this->m_Model = glm::mat4(1.0f);
+  this->m_Model = glm::rotate(this->m_Model, glm::radians(40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  this->m_ModelLoc = glGetUniformLocation(this->m_Shader->returnShader(), "model");
 }
 
 void Model::renderModel() {
+  this->m_Camera->SetView();
+  this->m_Camera->SetProjection();
+  SetModelLoc();
   this->m_Shader->useShader();
   glBindVertexArray(this->m_vao);
   glDrawElements(GL_TRIANGLES, this->idxs.size(), GL_UNSIGNED_INT, 0);
@@ -77,4 +91,7 @@ void Model::destroyModel() {
   this->m_ibo = 0;
   glDeleteVertexArrays(1, &this->m_vao);
   this->m_vao = 0;
+}
+void Model::SetModelLoc(){
+  glUniformMatrix4fv(this->m_ModelLoc, 1, GL_FALSE, glm::value_ptr(this->m_Model));
 }
