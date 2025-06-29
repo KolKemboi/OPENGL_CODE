@@ -1,19 +1,13 @@
 #include "model.h"
-#include "shader.h"
-#include <glm/ext/matrix_clip_space.hpp>
+#include"camera.h"
+#include "engine.h"
 #include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/vector_float3.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/trigonometric.hpp>
 #include <iostream>
-
 #include <memory>
 
-// TODO: make the VAO, VBO, IBO for all of them, add a basic shader
-
-void Model::makeModel() {
+Model::Model() {
 
   this->verts = {
       // Front face (position XYZ + color RGB)
@@ -51,13 +45,14 @@ void Model::makeModel() {
 
   glCreateBuffers(1, &this->m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, this->m_vbo);
-  glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(),
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, this->verts.size() * sizeof(float),
+               this->verts.data(), GL_STATIC_DRAW);
 
   glCreateBuffers(1, &this->m_ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxs.size() * sizeof(unsigned int),
-               idxs.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               this->idxs.size() * sizeof(unsigned int), this->idxs.data(),
+               GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
@@ -69,34 +64,34 @@ void Model::makeModel() {
   glBindVertexArray(0);
 
   this->m_Shader = std::make_shared<Shader>();
-  model = glm::rotate(model, glm::radians(40), glm::vec3(1.0f, 0.0f, 0.0f));
+  this->m_Camera = std::make_shared<Camera>(this->m_Shader);
+
+  this->m_Model = glm::mat4(1.0f);
+  this->m_Model = glm::rotate(this->m_Model, glm::radians(40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  this->m_ModelLoc = glGetUniformLocation(this->m_Shader->returnShader(), "model");
 }
 
 void Model::renderModel() {
-  // your existing code for view/projection setup
-  view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-  projection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
-
-  this->m_Shader->activateShader();
-
-  int modelLoc = glGetUniformLocation(this->m_Shader->m_Shader, "model");
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-  int viewLoc = glGetUniformLocation(this->m_Shader->m_Shader, "view");
-  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-  int projLoc = glGetUniformLocation(this->m_Shader->m_Shader, "projection");
-  glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+  this->m_Camera->SetView();
+  this->m_Camera->SetProjection();
+  SetModelLoc();
+  this->m_Shader->useShader();
   glBindVertexArray(this->m_vao);
   glDrawElements(GL_TRIANGLES, this->idxs.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
+  std::cout << this->idxs.size() << std::endl;
 }
+
 void Model::destroyModel() {
-  glDeleteVertexArrays(1, &this->m_vao);
-  this->m_vao = 0;
-  glDeleteBuffers(1, &this->m_ibo);
-  this->m_ibo = 0;
+  this->m_Shader->destroyShader();
+  this->m_Shader = 0;
   glDeleteBuffers(1, &this->m_vbo);
   this->m_vbo = 0;
+  glDeleteBuffers(1, &this->m_ibo);
+  this->m_ibo = 0;
+  glDeleteVertexArrays(1, &this->m_vao);
+  this->m_vao = 0;
+}
+void Model::SetModelLoc(){
+  glUniformMatrix4fv(this->m_ModelLoc, 1, GL_FALSE, glm::value_ptr(this->m_Model));
 }

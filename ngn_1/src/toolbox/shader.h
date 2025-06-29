@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 #endif // !GLAD_GUARD_
 #include <GLFW/glfw3.h>
-#include <iostream>
+
 class Shader {
 public:
   unsigned int m_Shader;

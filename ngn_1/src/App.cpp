@@ -3,6 +3,6 @@
 
 int main(int argc, char *argv[]) {
   std::unique_ptr<Engine> myengine = std::make_unique<Engine>();
-  myengine->runEngine();
+  myengine->runEngin();
   return 0;
 }
