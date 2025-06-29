@@ -27,7 +27,7 @@ Engine::Engine() : m_Height(480), m_Width(640) {
   }
   glViewport(0, 0, static_cast<GLsizei>(this->m_Width),
              static_cast<GLsizei>(this->m_Height));
-  glE nable(GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_BUFFER_BIT);
   this->m_Model = std::make_shared<Model>();
 
   this->m_Model->makeModel();

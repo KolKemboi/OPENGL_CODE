@@ -7,6 +7,8 @@
 #include <iostream>
 #include <memory>
 
+
+
 Model::Model() {
 
   this->verts = {
