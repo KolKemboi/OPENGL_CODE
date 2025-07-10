@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
+#include <memory>
 
 Engine::Engine() : m_Height(480), m_Width(640) {
   glfwInit();
@@ -22,9 +23,12 @@ Engine::Engine() : m_Height(480), m_Width(640) {
   glViewport(0, 0, this->m_Width, this->m_Height);
 
   glEnable(GL_DEPTH_BUFFER_BIT);
+
+  this->m_Model = std::make_shared<Model>();
 }
 
 Engine::~Engine() {
+  this->m_Model->DestroyModel();
   glfwDestroyWindow(this->m_Window);
   this->m_Height = 0;
   this->m_Width = 0;
@@ -37,6 +41,7 @@ void Engine::runEngine() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 
+    this->m_Model->renderModel();
     glfwSwapBuffers(this->m_Window);
     glfwPollEvents();
   }

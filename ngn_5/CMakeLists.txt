@@ -29,6 +29,9 @@ target_include_directories(imgui PUBLIC ${IMGUI_DIR})
 add_executable(${PROJ_NAME}
   src/App.cpp 
 	src/toolbox/Engine.cpp 
+	src/toolbox/Model.cpp 
+	src/toolbox/Shader.cpp 
+	src/toolbox/Camera.cpp 
   src/glad.c
 )
 
