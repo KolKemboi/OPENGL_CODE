@@ -1,4 +1,0 @@
-CompileFlags:
-  Add:
-    - -I/home/kol/Documents/Graphics/OPENGL_CODE/boilerplate/extLibs/imgui
-    - -I/home/kol/Documents/Graphics/OPENGL_CODE/boilerplate/include/glad
