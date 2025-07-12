@@ -1,3 +1,0 @@
-C:/Users/kolke/Documents/OPENGL_CODE/cmake test/build/CMakeFiles/OPenGLApp.dir
-C:/Users/kolke/Documents/OPENGL_CODE/cmake test/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/kolke/Documents/OPENGL_CODE/cmake test/build/CMakeFiles/ZERO_CHECK.dir
