@@ -49,7 +49,7 @@ void Engine::runEngine() {
 
 void Engine::closeWindow(GLFWwindow *window) {
 
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+  if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
 }
